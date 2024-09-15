@@ -1,4 +1,4 @@
-OCD Mental Health Caring Project 
+Heart Health Caring Project 
 ==============================================
 Group A — Project Management and Tools for Health Informatics — HT2024
 
