@@ -29,15 +29,18 @@ Attributes having Boolean values: 0 = Negative (No); 1 = Positive (Yes)
 Data source - https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data
 
 ## :framed_picture: Demo
-
+Heart to Say Dashboard:
 
 
 ## :dizzy: How to use?
 <ol>
-    <li>Clone this repo</li>
-    <li>Install all the dependencies</li>
-    <li>Download deepsort <a href="https://drive.google.com/drive/folders/1xhG0kRH1EX5B9_Iz8gQJb7UNnn_riXi6">checkpoint</a> file and paste it in deep_sort_pytorch/deep_sort/deep/checkpoint</li>
-    <li>Run -> streamlit run app.py</li>
+<li>Clone this repo</li>
+<li>Install all the dependencies</li>
+<li>Run -> streamlit run app.py</li>
 </ol>
+
+## 💌 Feedback
+Got some thoughts or suggestions? Don't hesitate to reach out to us. We'd love to hear from you! 💡
+
 
 ![Logo](assets/heart_to_say.png)
