@@ -93,12 +93,16 @@ def show_qr_code_login():
         # Display the resized image
         st.image(resized_image, caption="Please scan the QR code to login",use_column_width=False)
 
+# Main function to handle the navigation between steps
 def main():
-    # Check which page to show based on session state
-    if st.session_state.get("page") == "dashboard":
-        show_dashboard()
-    else:
+    if "logged_in" not in st.session_state:
+        st.session_state["logged_in"] = False
+
+    if not st.session_state["logged_in"]:
         login_page()
+    else:
+        st.session_state["page"] = "dashboard"
+        show_dashboard()
 
 if __name__ == "__main__":
     # Initialize session state variables if they don't exist
@@ -113,6 +117,8 @@ if __name__ == "__main__":
 # Function to show the dashboard after file upload
 def show_dashboard():
     st.title("Medical Data Analysis Dashboard")
+
+    search_query = st.text_input("Search", "")
 
     # Sidebar for image and file upload
     with st.sidebar:
@@ -158,16 +164,22 @@ def show_dashboard():
     
     st.markdown("---")
    
+  # Filter data based on search query
+    if search_query:
+        filtered_df = df[df.apply(lambda row: search_query.lower() in row.to_string().lower(), axis=1)]
+    else:
+        filtered_df = df
+
     with st.sidebar: 
         st.subheader(":guide_dog: Navigation")
-        option = st.sidebar.radio("Select an option:", [ "Data Overview", "Exploratory Data Analysis","Data Modeling"])
-    
+        option = st.sidebar.radio("Select an option:", ["Data Overview", "Exploratory Data Analysis", "Data Modeling"])
+
     if option == "Data Overview":
-        show_data_overview(df)
+        show_data_overview(filtered_df)
     elif option == "Exploratory Data Analysis":
-        show_eda(df)
+        show_eda(filtered_df)
     elif option == "Data Modeling":
-        show_modeling(df)
+        show_modeling(filtered_df)
 
 
 def show_data_overview(df):
@@ -331,68 +343,324 @@ def show_correlation(df):
     else:
         st.warning("Please select at least one feature for correlation analysis.")
 
-import seaborn as sns
+import streamlit as st
+import pandas as pd
 from sklearn import preprocessing
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, roc_auc_score, classification_report, confusion_matrix
+import plotly.express as px
 
-from sklearn import svm 
-from keras.layers import Dense, BatchNormalization, Dropout, LSTM
-from keras.models import Sequential
-from keras import callbacks
-from sklearn.metrics import precision_score, recall_score, confusion_matrix, classification_report, accuracy_score, f1_score
+import pandas as pd
+import streamlit as st
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, roc_auc_score, classification_report, confusion_matrix
+import plotly.express as px
+import io
 
 def show_modeling(df):
-    X = df.drop(["DEATH_EVENT"], axis=1)
+    # select features
+    st.sidebar.subheader("Feature Selection")
+    all_features = df.columns.tolist()
+    all_features.remove("DEATH_EVENT")
+    selected_features = st.sidebar.multiselect(
+        "Select features for modeling:",
+        options=all_features,
+        default=all_features
+    )
+    
+    if not selected_features:
+        st.error("Please select at least one feature.")
+        return
+
+    # preparing data
+    X = df[selected_features]
     y = df["DEATH_EVENT"]
 
-    # Setting up a standard scaler for the features and analyzing it thereafter
-    st.subheader("Scale for the features")
+    # auto standardscaler
     col_names = list(X.columns)
     s_scaler = preprocessing.StandardScaler()
     X_scaled = s_scaler.fit_transform(X)
     X_scaled = pd.DataFrame(X_scaled, columns=col_names)
-    st.write(X_scaled.describe().T)
 
-   # Plotting the scaled features using box plots with Plotly
-    st.subheader("Plot the scaled features using box plots")
-    fig = px.box(X_scaled, title="Box Plot of Scaled Features")
-    fig.update_layout(xaxis_title='Feature', yaxis_title='Scaled Value')
-    st.plotly_chart(fig, use_container_width=True)
+    # choose to show the scaled features box plot
+    show_boxplot = st.sidebar.checkbox("Show Box Plot of Scaled Features")
 
-    def train_and_evaluate_model():
-        # Create and train the SVM model
-        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.30, random_state=25)
-        model1 = svm.SVC()
-        model1.fit(X_train, y_train)
-        # Predicting the test variables
-        y_pred = model1.predict(X_test)
-        # Getting the classification report
+    if show_boxplot:
+        # box plot
+        st.subheader("Box Plot of Scaled Features")
+        fig = px.box(X_scaled)
+        fig.update_layout(xaxis_title='Feature', yaxis_title='Scaled Value')
+        st.plotly_chart(fig, use_container_width=True)
+
+    # choose a model
+    st.sidebar.subheader("Select a Model for Training")
+    model_option = st.sidebar.selectbox(
+        "Choose a model:",
+        ("Logistic Regression", "Random Forest", "K-Nearest Neighbors", "Support Vector Machine", "Artificial Neural Network")
+    )
+
+    def train_and_evaluate_model(model_name):
+        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=25)
+
+        # select model to train
+        if model_name == "Logistic Regression":
+            model = LogisticRegression(max_iter=1000)
+        elif model_name == "Random Forest":
+            model = RandomForestClassifier(n_estimators=100)
+        elif model_name == "K-Nearest Neighbors":
+            model = KNeighborsClassifier(n_neighbors=5)
+        elif model_name == "Support Vector Machine":
+            model = SVC(probability=True)
+        elif model_name == "Artificial Neural Network":
+            model = MLPClassifier(hidden_layer_sizes=(100,), max_iter=1000, random_state=25)
+        else:
+            st.error("Invalid model selected.")
+            return None, None, None, None, None
+
+        # train model and predict
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        y_prob = model.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") else None
+
+        # Model Evaluation
+        accuracy = accuracy_score(y_test, y_pred)
+        auc_score = roc_auc_score(y_test, y_prob) if y_prob is not None else "N/A"
         report = classification_report(y_test, y_pred, output_dict=True)
-        return report, y_test, y_pred
-    
-    def show_model_results():
-        st.title("SVM Model Evaluation")
-        # Get the classification report
-        report, y_test, y_pred = train_and_evaluate_model()
-        # Display the classification report as a data frame
+        conf_matrix = confusion_matrix(y_test, y_pred)
+
+        return model, accuracy, auc_score, report, conf_matrix
+
+    def show_model_results(model_name):
+        st.markdown(f"""
+        ## Model: {model_name}
+        """)
+        st.markdown("---")
+        model, accuracy, auc_score, report, conf_matrix = train_and_evaluate_model(model_name)
+
+        if model is None:
+            st.error("The model could not be trained. Please check the model selection.")
+            return None
+
+        # Save the model and predictions to session state
+        st.session_state.model = model
+
+        # Classification Report
         st.subheader("Classification Report")
+        st.write("The classification report provides precision, recall, and F1-score for each class.")
         report_df = pd.DataFrame(report).transpose()
-        st.dataframe(report_df)
+        st.dataframe(report_df, use_container_width=True)
+
+        # Model Performance Metrics
+        st.subheader("Model Performance Metrics")
+        st.write("These metrics help to understand the performance of the model.")
         
-    # Call the function to show model results
-    show_model_results()
+        # Layout for performance metrics with cards
+        st.markdown("""
+        <style>
+        .card-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .card {
+            background-color: #f0f0f5; /* Default background color */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            width: 48%; /* Adjust width to fit side-by-side */
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff; /* White text */
+        }
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff; /* White text */
+        }
+        .card-red {
+            background-color: #e74c3c; /* Red background */
+        }
+        .card-blue {
+            background-color: #3498db; /* Blue background */
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        # Display Accuracy in red card on the left
+        st.markdown(f"""
+        <div class="card-container">
+            <div class="card card-red">
+                <div class="card-title">Accuracy</div>
+                <div class="card-value">{accuracy:.4f}</div>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">ROC-AUC Score</div>
+                <div class="card-value">{auc_score:.4f}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # If ROC-AUC Score is not applicable
+        if auc_score == "N/A":
+            st.markdown(f"""
+            <div class="card-container">
+                <div class="card card-red">
+                    <div class="card-title">Accuracy</div>
+                    <div class="card-value">{accuracy:.4f}</div>
+                </div>
+                <div class="card card-blue">
+                    <div class="card-title">ROC-AUC Score</div>
+                    <div class="card-value">Not Applicable</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Specificity Card
+        st.markdown("")
+        tn = report['0']['support'] if '0' in report else 'N/A'  # True Negative count
+        fp = report['1']['support'] if '1' in report else 'N/A'  # False Positive count
+        specificity = tn / (tn + fp) if tn != 'N/A' and fp != 'N/A' else 'N/A'
+        specificity_card = f"""
+        <div style="
+            background-color: #00bcd4; 
+            color: white; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            text-align: center;
+            margin-bottom: 10px;">
+            Specificity (SP): {specificity:.4f}
+        </div>
+        """
+        st.markdown(specificity_card, unsafe_allow_html=True)
+        
+        # Confusion Matrix
+        st.markdown("")
+        st.subheader("Confusion Matrix")
+        st.write("The confusion matrix shows the counts of true vs predicted labels.")
+        fig = px.imshow(conf_matrix, text_auto=True, color_continuous_scale="Blues",
+                        labels={'color': 'Count'})
+        fig.update_layout(xaxis_title='Predicted Label',
+                        yaxis_title='True Label')
+        st.plotly_chart(fig, use_container_width=True)
 
-# Main function to handle the navigation between steps
-def main():
-    if "logged_in" not in st.session_state:
-        st.session_state["logged_in"] = False
+        return model
 
-    if not st.session_state["logged_in"]:
-        login_page()
-    else:
-        st.session_state["page"] = "dashboard"
-        show_dashboard()
+    # Train and Evaluate Model
+    if st.sidebar.button("Train and Evaluate Model"):
+        model = show_model_results(model_option)
+
+        if model:
+            # Make predictions with the trained model on the full dataset
+            X_full = df[selected_features]
+            X_full_scaled = s_scaler.transform(X_full)
+            predictions = model.predict(X_full_scaled)
+
+            # Add predictions to the original DataFrame
+            df['Predictions'] = predictions
+            st.session_state.df_with_predictions = df
+
+     # Patient Index Input and Recommendations
+    if 'df_with_predictions' in st.session_state:
+        df_with_predictions = st.session_state.df_with_predictions
+
+        # Ensure patient index is within the valid range
+        max_index = len(df_with_predictions) - 1
+        patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
+
+        if 0 <= patient_index <= max_index:
+            # Extract prediction for the selected patient index
+            pred = df_with_predictions.loc[patient_index, 'Predictions']
+            
+            # Generate recommendation based on the prediction
+            if pred == 1:
+                recommendation = "Patient is at high risk of death. Immediate intervention is advised."
+            else:
+                recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
+
+            # Display Patient Information with Enhanced UI
+            # Display Patient Information with Enhanced UI
+            st.markdown(f"""
+            <div style="
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                margin-bottom: 20px;
+                color: #333;
+                border: 1px solid #ddd;
+            ">
+                <h2 style="
+                    margin: 0;
+                    font-size: 26px;
+                    color: #2c3e50;
+                    border-bottom: 2px solid #3498db;
+                    padding-bottom: 10px;
+                ">
+                    Patient Index: {patient_index}
+                </h2>
+                <p style="
+                    font-size: 20px;
+                    margin: 10px 0;
+                    font-weight: bold;
+                ">
+                    Prediction: 
+                    <span style="
+                        font-weight: bold;
+                        color: {'#e74c3c' if pred == 1 else '#27ae60'};
+                    ">
+                        {'High Risk' if pred == 1 else 'Low Risk'}
+                    </span>
+                </p>
+                <p style="
+                    font-size: 20px;
+                    margin: 10px 0;
+                    font-weight: bold;
+                ">
+                    Recommendation: 
+                    <span style="
+                        color: #2980b9;
+                        background-color: #ecf0f1;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                        display: inline-block;
+                    ">
+                        {recommendation}
+                    </span>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+
+            # Create an Excel file with patient data and recommendations
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df_with_predictions.to_excel(writer, sheet_name='Patient Data', index=False)
+                # Write recommendations in a separate sheet
+                recommendations_df = pd.DataFrame({
+                    'Patient Index': [patient_index],
+                    'Prediction': [pred],
+                    'Recommendation': [recommendation]
+                })
+                recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
+            st.download_button(label="Download Patient Data and Recommendations as Excel",
+                               data=output.getvalue(),
+                               file_name="patient_data_and_recommendations.xlsx",
+                               mime="application/vnd.ms-excel")
+
 
 if __name__ == "__main__":
     main()
