@@ -591,8 +591,7 @@ def show_modeling(df):
             else:
                 recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
 
-            # Display Patient Information with Enhanced UI
-            # Display Patient Information with Enhanced UI
+            # Display Patient Information
             st.markdown(f"""
             <div style="
                 background-color: #ffffff;
