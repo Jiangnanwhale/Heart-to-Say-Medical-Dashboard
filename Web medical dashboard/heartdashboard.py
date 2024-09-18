@@ -601,16 +601,35 @@ def show_modeling(df):
                 margin-bottom: 20px;
                 color: #333;
                 border: 1px solid #ddd;
-            ">
-                <h2 style="
-                    margin: 0;
-                    font-size: 26px;
-                    color: #2c3e50;
-                    border-bottom: 2px solid #3498db;
-                    padding-bottom: 10px;
+            ">   
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
                 ">
-                    Patient Index: {patient_index}
-                </h2>
+                    <h2 style="
+                        margin: 0;
+                        font-size: 26px;
+                        color: #2c3e50;
+                        border-bottom: 2px solid #3498db;
+                        padding-bottom: 10px;
+                        flex: 1;
+                    ">
+                        Patient Index: {patient_index}
+                    </h2>
+                    <h2 style="
+                        margin: 0;
+                        font-size: 26px;
+                        color: #2c3e50;
+                        border-bottom: 2px solid #3498db;
+                        padding-bottom: 10px;
+                        flex: 1;
+                        text-align: right;
+                    ">
+                        Model: {model_option}
+                    </h2>
+                </div>
                 <p style="
                     font-size: 20px;
                     margin: 10px 0;
