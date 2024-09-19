@@ -185,40 +185,84 @@ def show_dashboard():
 def show_data_overview(df):
     st.subheader("Dataset Overview")
     
-    # First section: Show the dataset
+    # dataset basic info
     total_records = len(df)
     positive_cases = df['DEATH_EVENT'].value_counts().get(1, 0)
     negative_cases = df['DEATH_EVENT'].value_counts().get(0, 0)
+    missing_values = df.isnull().sum().sum()
+    total_features = df.shape[1]
 
-   
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
-    # Statistic Card
+    # card style
     with col1:
         st.markdown(f"""
-            <div style="background-color: #F8F9FA; padding: 10px; border-radius: 10px; text-align: center;">
-                <h4 style="color: #2C3E50;">Total Records</h4>
-                <p style="font-size: 24px; color: #16A085;">{total_records}</p>
+            <div style="background-color: #1abc9c; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+                <h3>Total Records</h3>
+                <p style="font-size: 24px; font-weight: bold;">{total_records}</p>
             </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""
-            <div style="background-color: #F8F9FA; padding: 10px; border-radius: 10px; text-align: center;">
-                <h4 style="color: #2C3E50;">Positive Cases</h4>
-                <p style="font-size: 24px; color: #E74C3C;">{positive_cases}</p>
+            <div style="background-color: #e74c3c; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+                <h3>Positive Cases</h3>
+                <p style="font-size: 24px; font-weight: bold;">{positive_cases}</p>
             </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown(f"""
-            <div style="background-color: #F8F9FA; padding: 10px; border-radius: 10px; text-align: center;">
-                <h4 style="color: #2C3E50;">Negative Cases</h4>
-                <p style="font-size: 24px; color: #3498DB;">{negative_cases}</p>
+            <div style="background-color: #3498db; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+                <h3>Negative Cases</h3>
+                <p style="font-size: 24px; font-weight: bold;">{negative_cases}</p>
             </div>
         """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown(f"""
+            <div style="background-color: #9b59b6; padding: 20px; border-radius: 10px; text-align: center; color: white;">
+                <h3>Missing Values</h3>
+                <p style="font-size: 24px; font-weight: bold;">{missing_values}</p>
+            </div>
+        """, unsafe_allow_html=True)
+
     st.write("")
-    st.write(df.head(15))
+    st.write("### Sample of the Dataset")
+    st.dataframe(df.head(15))
+
+    st.write("")
+    st.write("### Data Types and Missing Values")
+    data_info = pd.DataFrame({
+        'Data Type': df.dtypes,
+        'Missing Values': df.isnull().sum(),
+        'Unique Values': df.nunique()
+    })
+    st.dataframe(data_info)
+
+    st.write("")
+    st.write("### Statistical Summary")
+    st.dataframe(df.describe())
+
+    st.write("")
+    st.write("### Distribution of Target Variable")
+    fig = px.pie(values=df['DEATH_EVENT'].value_counts(), names=['Negative (0)', 'Positive (1)'],
+                 title='Distribution of DEATH_EVENT')
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Distribution of Selected Features
+    st.write("")
+    st.write("### Distribution of Selected Feature")
+    
+    numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+    if 'DEATH_EVENT' in numeric_columns:
+        numeric_columns.remove('DEATH_EVENT')
+    
+    selected_column = st.selectbox("Select a feature to visualize", numeric_columns)
+
+    fig = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='overlay',
+                       title=f'Distribution of {selected_column}')
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def show_eda(df):
@@ -342,18 +386,6 @@ def show_correlation(df):
         st.plotly_chart(fig)
     else:
         st.warning("Please select at least one feature for correlation analysis.")
-
-import streamlit as st
-import pandas as pd
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import accuracy_score, roc_auc_score, classification_report, confusion_matrix
-import plotly.express as px
 
 import pandas as pd
 import streamlit as st
