@@ -30,7 +30,7 @@ Data source - https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-d
 
 ## :framed_picture: Demo
 
-https://www.loom.com/share/8a06ea554fdd403f84a4eb6cc8376b55?sid=216d2b86-b457-4c48-b32f-dc424be5cd07
+https://www.loom.com/share/335b5dabe1e0492d9a86177dfef2ec46?sid=2458ad93-b393-44ff-93c2-7f5b1e13c643
 
 ## :dizzy: How to use?
 <ol>
