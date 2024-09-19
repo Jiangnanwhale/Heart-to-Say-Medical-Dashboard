@@ -29,8 +29,9 @@ Attributes having Boolean values: 0 = Negative (No); 1 = Positive (Yes)
 Data source - https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data
 
 ## :framed_picture: Demo
+https://www.loom.com/share/d2e627ac5e8549449d0564622fecade4?sid=d1b56e6e-e203-4b27-9054-106b24e6922b
 
-https://www.loom.com/share/d21f0e81f32741b4b2b8e36073a19551?sid=0a6680ab-a0a9-4d8f-bb1e-526356cccce2
+With bgm: https://drive.google.com/drive/u/2/folders/1S2k11p_fL1b7EMqfCBhGwdg0k7p5XYLF
 
 ## :dizzy: How to use?
 <ol>
