@@ -113,10 +113,19 @@ if __name__ == "__main__":
     if 'page' not in st.session_state:
         st.session_state['page'] = 'login'
 
+# Logout function
+def logout():
+    # Reset session state and automatically refresh by clearing the logged_in flag
+    st.session_state["logged_in"] = False
+    st.session_state["show_dashboard_button"] = False
+    st.session_state["page"] = "login"
 
 # Function to show the dashboard after file upload
 def show_dashboard():
     st.title("Medical Data Analysis Dashboard")
+
+    if st.sidebar.button("Logout"):
+        logout()  # Call the logout function
 
     search_query = st.text_input("Search", "")
 
@@ -159,7 +168,7 @@ def show_dashboard():
     elif "use_default" in st.session_state and st.session_state["use_default"]:
         df = pd.read_csv("d:/KI/project management_SU/PROHI-dashboard-class-exercise/heart_failure_clinical_records_dataset.csv")
     else:
-        st.error("No file uploaded or selected for use. Please go back and choose an option.")
+        st.error("No file uploaded or selected for use. Please upload your dataset.")
         return
     
     st.markdown("---")
