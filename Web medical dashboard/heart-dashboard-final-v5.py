@@ -855,111 +855,113 @@ def upload_your_model_file(df):
             )
             st.plotly_chart(fig, use_container_width=True)
 
-        
-            # Ensure patient index is within the valid range
-            max_index = len(df) - 1
-            patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
+        # Ensure patient index is within the valid range
+        max_index = len(df) - 1
+        patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
 
-            if 0 <= patient_index <= max_index:
-                # Extract prediction for the selected patient index
-                try:
-                    pred = df.loc[patient_index, 'Predictions']
-                except KeyError:
-                    st.error("Predictions column not found in the DataFrame.")
-                    return
-                
-                # Generate recommendation based on the prediction
-                if pred == 1:
-                    recommendation = "Patient is at high risk of death. Immediate intervention is advised."
-                else:
-                    recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
+        if 0 <= patient_index <= max_index:
+            # Extract prediction for the selected patient index
+            try:
+                pred = df.loc[patient_index, 'Predictions']
+            except KeyError:
+                st.error("Predictions column not found in the DataFrame.")
+                return
+            
+            # Generate recommendation based on the prediction
+            if pred == 1:
+                recommendation = "Patient is at high risk of death. Immediate intervention is advised."
+            else:
+                recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
 
-                # Display Patient Information
-                st.markdown(f"""
+            # Display Patient Information
+            st.markdown(f"""
+            <div style="
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                margin-bottom: 20px;
+                color: #333;
+                border: 1px solid #ddd;
+            ">   
                 <div style="
-                    background-color: #ffffff;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                    padding: 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
                     margin-bottom: 20px;
-                    color: #333;
-                    border: 1px solid #ddd;
-                ">   
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 20px;
+                ">
+                    <h2 style="
+                        margin: 0;
+                        font-size: 22px;
+                        color: #2c3e50;
+                        border-bottom: 2px solid #3498db;
+                        width: 150px;
+                        padding-bottom: 10px;
+                        flex: 1;
                     ">
-                        <h2 style="
-                            margin: 0;
-                            font-size: 26px;
-                            color: #2c3e50;
-                            border-bottom: 2px solid #3498db;
-                            padding-bottom: 10px;
-                            flex: 1;
-                        ">
-                            Patient Index: {patient_index}
-                        </h2>
-                        <h2 style="
-                            margin: 0;
-                            font-size: 26px;
-                            color: #2c3e50;
-                            border-bottom: 2px solid #3498db;
-                            padding-bottom: 10px;
-                            flex: 1;
-                            text-align: right;
-                        ">
-                            Model: {model}
-                        </h2>
-                    </div>
-                    <p style="
-                        font-size: 20px;
-                        margin: 10px 0;
-                        font-weight: bold;
+                        Patient Index: <br>
+                        {patient_index}
+                    </h2>
+                    <h2 style="
+                        margin: 0;
+                        font-size: 22px;
+                        color: #2c3e50;
+                        border-bottom: 2px solid #3498db;
+                        padding-bottom: 10px;
+                        flex: 1;
+                        text-align: right;
                     ">
-                        Prediction: 
-                        <span style="
-                            font-weight: bold;
-                            color: {'#e74c3c' if pred == 1 else '#27ae60'};
-                        ">
-                            {'High Risk' if pred == 1 else 'Low Risk'}
-                        </span>
-                    </p>
-                    <p style="
-                        font-size: 20px;
-                        margin: 10px 0;
-                        font-weight: bold;
-                    ">
-                        Recommendation: 
-                        <span style="
-                            color: #2980b9;
-                            background-color: #ecf0f1;
-                            border-radius: 5px;
-                            padding: 5px 10px;
-                            display: inline-block;
-                        ">
-                            {recommendation}
-                        </span>
-                    </p>
+                        Model: <br>
+                        {model}
+                    </h2>
                 </div>
-                """, unsafe_allow_html=True)
+                <p style="
+                    font-size: 20px;
+                    margin: 10px 0;
+                    font-weight: bold;
+                ">
+                    Prediction: 
+                    <span style="
+                        font-weight: bold;
+                        color: {'#e74c3c' if pred == 1 else '#27ae60'};
+                    ">
+                        {'High Risk' if pred == 1 else 'Low Risk'}
+                    </span>
+                </p>
+                <p style="
+                    font-size: 20px;
+                    margin: 10px 0;
+                    font-weight: bold;
+                ">
+                    Recommendation: 
+                    <span style="
+                        color: #2980b9;
+                        background-color: #ecf0f1;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                        display: inline-block;
+                    ">
+                        {recommendation}
+                    </span>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
-                # Create an Excel file with patient data and recommendations
-                output = io.BytesIO()
-                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                    df.to_excel(writer, sheet_name='Patient Data', index=False)
-                    # Write recommendations in a separate sheet
-                    recommendations_df = pd.DataFrame({
-                        'Patient Index': [patient_index],
-                        'Prediction': [pred],
-                        'Recommendation': [recommendation]
-                    })
-                    recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
-                st.download_button(label="Download Patient Data and Recommendations as Excel",
-                                    data=output.getvalue(),
-                                    file_name=f"{model}_patient_data_and_recommendations.xlsx",
-                                    mime="application/vnd.ms-excel")
+            # Create an Excel file with patient data and recommendations
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df.to_excel(writer, sheet_name='Patient Data', index=False)
+                # Write recommendations in a separate sheet
+                recommendations_df = pd.DataFrame({
+                    'Patient Index': [patient_index],
+                    'Prediction': [pred],
+                    'Recommendation': [recommendation]
+                })
+                recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
+            st.download_button(label="Download Patient Data and Recommendations as Excel",
+                                data=output.getvalue(),
+                                file_name=f"{model}_patient_data_and_recommendations.xlsx",
+                                mime="application/vnd.ms-excel")
     else:
         st.warning("Please upload a trained model file.")
 
@@ -1044,6 +1046,13 @@ def use_the_provided_model(df):
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         y_prob = model.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") else None
+
+        # Check if the model supports predict_proba
+        try:
+            y_prob = model.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") else None
+        except KeyError as e:
+            st.warning(f"Prediction error: {str(e)}. Model may not support probability prediction.")
+            y_prob = None
 
         # Model Evaluation
         accuracy = accuracy_score(y_test, y_pred)
@@ -1358,109 +1367,111 @@ def use_the_provided_model(df):
 
                 except Exception as e:
                     st.error(f"Error during prediction: {str(e)}")
-                  
+       
+            try: 
+                # Ensure patient index is within the valid range
+                max_index = len(new_data) - 1
+                patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
 
-        # Ensure patient index is within the valid range
-        max_index = len(new_data) - 1
-        patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
+                if 0 <= patient_index <= max_index:
+                    # Extract prediction for the selected patient index
+                    pred = new_data.loc[patient_index, 'Predictions']
+                    
+                    # Generate recommendation based on the prediction
+                    if pred == 1:
+                        recommendation = "Patient is at high risk of death. Immediate intervention is advised."
+                    else:
+                        recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
 
-        if 0 <= patient_index <= max_index:
-            # Extract prediction for the selected patient index
-            pred = new_data.loc[patient_index, 'Predictions']
-            
-            # Generate recommendation based on the prediction
-            if pred == 1:
-                recommendation = "Patient is at high risk of death. Immediate intervention is advised."
-            else:
-                recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
-
-            # Display Patient Information
-            st.markdown(f"""
-            <div style="
-                background-color: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                padding: 20px;
-                margin-bottom: 20px;
-                color: #333;
-                border: 1px solid #ddd;
-            ">   
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 20px;
-                ">
-                    <h2 style="
-                        margin: 0;
-                        font-size: 26px;
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
-                        padding-bottom: 10px;
-                        flex: 1;
-                    ">
-                        Patient Index: {patient_index}
-                    </h2>
-                    <h2 style="
-                        margin: 0;
-                        font-size: 26px;
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
-                        padding-bottom: 10px;
-                        flex: 1;
-                        text-align: right;
-                    ">
-                        Model: {model_option}
-                    </h2>
-                </div>
-                <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
-                    font-weight: bold;
-                ">
-                    Prediction: 
-                    <span style="
-                        font-weight: bold;
-                        color: {'#e74c3c' if pred == 1 else '#27ae60'};
-                    ">
-                        {'High Risk' if pred == 1 else 'Low Risk'}
-                    </span>
-                </p>
-                <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
-                    font-weight: bold;
-                ">
-                    Recommendation: 
-                    <span style="
-                        color: #2980b9;
-                        background-color: #ecf0f1;
-                        border-radius: 5px;
-                        padding: 5px 10px;
-                        display: inline-block;
-                    ">
-                        {recommendation}
-                    </span>
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+                    # Display Patient Information
+                    st.markdown(f"""
+                    <div style="
+                        background-color: #ffffff;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                        padding: 20px;
+                        margin-bottom: 20px;
+                        color: #333;
+                        border: 1px solid #ddd;
+                    ">   
+                        <div style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 20px;
+                        ">
+                            <h2 style="
+                                margin: 0;
+                                font-size: 26px;
+                                color: #2c3e50;
+                                border-bottom: 2px solid #3498db;
+                                padding-bottom: 10px;
+                                flex: 1;
+                            ">
+                                Patient Index: {patient_index}
+                            </h2>
+                            <h2 style="
+                                margin: 0;
+                                font-size: 26px;
+                                color: #2c3e50;
+                                border-bottom: 2px solid #3498db;
+                                padding-bottom: 10px;
+                                flex: 1;
+                                text-align: right;
+                            ">
+                                Model: {model_option}
+                            </h2>
+                        </div>
+                        <p style="
+                            font-size: 20px;
+                            margin: 10px 0;
+                            font-weight: bold;
+                        ">
+                            Prediction: 
+                            <span style="
+                                font-weight: bold;
+                                color: {'#e74c3c' if pred == 1 else '#27ae60'};
+                            ">
+                                {'High Risk' if pred == 1 else 'Low Risk'}
+                            </span>
+                        </p>
+                        <p style="
+                            font-size: 20px;
+                            margin: 10px 0;
+                            font-weight: bold;
+                        ">
+                            Recommendation: 
+                            <span style="
+                                color: #2980b9;
+                                background-color: #ecf0f1;
+                                border-radius: 5px;
+                                padding: 5px 10px;
+                                display: inline-block;
+                            ">
+                                {recommendation}
+                            </span>
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 
-            # Create an Excel file with patient data and recommendations
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                new_data.to_excel(writer, sheet_name='Patient Data', index=False)
-                # Write recommendations in a separate sheet
-                recommendations_df = pd.DataFrame({
-                    'Patient Index': [patient_index],
-                    'Prediction': [pred],
-                    'Recommendation': [recommendation]
-                })
-                recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
-            st.download_button(label="Download Patient Data and Recommendations as Excel",
-                               data=output.getvalue(),
-                               file_name=f"{model_option}_patient_data_and_recommendations.xlsx",
-                               mime="application/vnd.ms-excel")
+                    # Create an Excel file with patient data and recommendations
+                    output = io.BytesIO()
+                    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                        new_data.to_excel(writer, sheet_name='Patient Data', index=False)
+                        # Write recommendations in a separate sheet
+                        recommendations_df = pd.DataFrame({
+                            'Patient Index': [patient_index],
+                            'Prediction': [pred],
+                            'Recommendation': [recommendation]
+                        })
+                        recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
+                    st.download_button(label="Download Patient Data and Recommendations as Excel",
+                                    data=output.getvalue(),
+                                    file_name=f"{model_option}_patient_data_and_recommendations.xlsx",
+                                    mime="application/vnd.ms-excel")
+            except KeyError:
+                pred = "Need to train and evaluate model again."
             
 if __name__ == "__main__":
     main()
