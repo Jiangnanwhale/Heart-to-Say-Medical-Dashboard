@@ -133,11 +133,16 @@ def show_contact_us():
     - Nan Jiang  
     - Sahid Hasan Rahimm  
     - Zhao Chen  
-
+    
+      
     **Data Resource**:  
-    [Heart Failure Clinical Data](https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data)  
-   
-    **Problem Description**:
+    [Heart Failure Clinical Data](https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data)
+                  
+    **Project Information**:  
+    [Project GitHub](https://github.com/Jiangnanwhale/Heart-Health-Caring-Team)
+                
+    **Problem Description**: 
+                
     The Heart to Say project aims to build a web-based medical dashboard that supports physicians to predict the risk of mortality due to heart failure. Physicians will be able to reassess treatment plans, explore alternative therapies, and closely monitor patients to help mitigate the risk of mortality. Prescriptive analytics will be used on patient data to help physicians identify specific factors contributing to elevated mortality risk. Thus, it will provide recommendations based on existing medical guidelines to guide in clinical decision-making on an individual basis for prevention and/or mitigation of mortality due to heart failure.           
     
     **Design Process**: 
@@ -263,6 +268,7 @@ def show_preprocessing(df):
     # 3. Transform DataFrame into Numpy Array
     st.markdown(" 3. Transform DataFrame into Numpy Array")
     np_array = df.to_numpy()
+    df = np_array
     st.success("DataFrame transformed to Numpy array!")
 
     # Save and Proceed Button
@@ -1194,7 +1200,7 @@ def use_the_provided_model(df):
     st.sidebar.subheader("Select Scaling Method")
     scaling_method = st.sidebar.selectbox(
         "Choose a scaling method:",
-        ("StandardScaler", "MinMaxScaler", "RobustScaler")
+        ("StandardScaler", "MinMaxScaler", "RobustScaler","None")
     )
 
    # Scaling based on user's choice
