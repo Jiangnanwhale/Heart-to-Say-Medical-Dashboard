@@ -178,13 +178,21 @@ def show_dashboard():
         show_input_data()
     elif option == "Upload your dataset":
         show_upload_dataset()
+    
 
 # Function to load the model
 def load_model(uploaded_file):
     return pickle.load(uploaded_file)
 
 def show_input_data():
-    
+    with st.sidebar:
+        option =st.radio("Upload your model first:", ["Upload your model","Contact us"])
+    if option == "Upload your model":
+        upload_your_model()
+    elif option ==  "Contact us":
+        show_contact_us()    
+
+def upload_your_model():
     st.subheader("Upload Your Model")
     uploaded_file = st.file_uploader("Choose a model file", type=["pkl"])
     
@@ -917,7 +925,7 @@ def load_model(uploaded_file):
 
 def show_modeling(df):
     with st.sidebar:
-        option = st.radio("Select an option:", ["Upload your model file", "Use the provided model"])
+        option = st.radio("Make a choice:", ["Upload your model file", "Use the provided model"])
 
     if option == "Upload your model file":
         upload_your_model_file(df)
@@ -1748,15 +1756,7 @@ def use_the_provided_model(df):
             joblib.dump(model, file)
         return filename
     
-    # Clear previous model results if model changes
-    if 'current_model_option' in st.session_state:
-        if st.session_state.current_model_option != model_option:
-            st.session_state.df_with_predictions = None
-            st.session_state.model = None
-            st.session_state.current_model_option = model_option
-            st.warning("You've changed the model so you need to train and evaluate the model again.")
-    else:
-        st.session_state.current_model_option = model_option 
+    
         
     # Train and Evaluate Model
     if st.sidebar.button("Train and Evaluate Model"):
@@ -1917,6 +1917,16 @@ def use_the_provided_model(df):
                                 mime="application/vnd.ms-excel")
         except KeyError:
             pred = "Need to train and evaluate model again."
-            
+    
+    # Clear previous model results if model changes
+    if 'current_model_option' in st.session_state:
+        if st.session_state.current_model_option != model_option:
+            st.session_state.df_with_predictions = None
+            st.session_state.model = None
+            st.session_state.current_model_option = model_option
+            st.warning("You've changed the model so you need to train and evaluate the model again.")
+    else:
+        st.session_state.current_model_option = model_option 
+
 if __name__ == "__main__":
     main()
