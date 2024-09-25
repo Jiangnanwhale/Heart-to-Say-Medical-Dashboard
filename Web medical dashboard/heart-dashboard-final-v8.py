@@ -158,7 +158,7 @@ def show_contact_us():
     Got some thoughts or suggestions? Don't hesitate to reach out to us. We'd love to hear from you! 
     """)
 
-    st.markdown("---")  # Add a horizontal line for better separation
+    st.markdown("---") 
 
 def show_dashboard():
     st.title("Medical Data Analysis Dashboard")
@@ -184,15 +184,18 @@ def load_model(uploaded_file):
     return pickle.load(uploaded_file)
 
 def show_input_data():
-    # Sidebar for model upload
-    with st.sidebar:
-        st.subheader("Upload Your Model")
-        uploaded_file = st.file_uploader("Choose a model file", type=["pkl"])
-        
-        if uploaded_file is not None:
-            st.session_state["model"] = load_model(uploaded_file)
-            st.success("Model loaded successfully!")
-        
+    
+    st.subheader("Upload Your Model")
+    uploaded_file = st.file_uploader("Choose a model file", type=["pkl"])
+    
+    if uploaded_file is not None:
+        st.session_state["model"] = load_model(uploaded_file)
+        st.success("Model loaded successfully!")
+    
+    # Initialize the session state key if it doesn't exist
+    if "input_history" not in st.session_state:
+        st.session_state["input_history"] = []
+
     st.header("Input Your Medical Data")
     
     # Create a container for the input fields to improve layout
@@ -236,7 +239,8 @@ def show_input_data():
         st.session_state["sex"] = sex
         st.session_state["smoking"] = smoking
         st.session_state["time"] = time
-
+        
+        prediction = None
         if "model" in st.session_state:
             model = st.session_state["model"]
             # Check if the loaded model is indeed a valid model
@@ -264,9 +268,9 @@ def show_input_data():
                     scaler = st.session_state['scaler']  
 
                 input_data_scaled = scaler.transform(input_data)
-                
                 prediction = model.predict(input_data_scaled)
-    
+
+        
                 # Generate recommendation based on the prediction
                 recommendation = (
                     "Patient is at high risk of death. Immediate intervention is advised."
@@ -332,24 +336,86 @@ def show_input_data():
                 st.error("The uploaded model is not valid. Please upload a trained model.")
         else:
             st.error("Please upload a model file before calculating the prediction.")
+        # Append the current inputs to the input history, including the prediction if available
+    
+        st.session_state["input_history"].append({
+            "age": age,
+            "creatinine_phosphokinase": creatinine_phosphokinase,
+            "ejection_fraction": ejection_fraction,
+            "platelets": platelets,
+            "serum_creatinine": serum_creatinine,
+            "serum_sodium": serum_sodium,
+            "anaemia": anaemia,
+            "diabetes": diabetes,
+            "high_blood_pressure": high_blood_pressure,
+            "sex": sex,
+            "smoking": smoking,
+            "time": time,
+            "Prediction": "High Risk" if prediction is not None and prediction[0] == 1 else "Low Risk"
+        })
+
+    def format_record(record, idx):
+        prediction = record.get("Prediction", "N/A")
+        return f"""
+        <div style='
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        '>
+        <h4 style='color: #2c3e50;'>Record {idx+1}</h4>
+        <table style='width: 100%; border-collapse: collapse;'>
+            <tr>
+                <td><strong>Age:</strong> {record["age"]} years</td>
+                <td><strong>Creatinine Phosphokinase:</strong> {record["creatinine_phosphokinase"]} mcg/L</td>
+                <td><strong>Ejection Fraction:</strong> {record["ejection_fraction"]}%</td>
+            </tr>
+            <tr>
+                <td><strong>Platelets:</strong> {record["platelets"]} kiloplatelets/mL</td>
+                <td><strong>Serum Creatinine:</strong> {record["serum_creatinine"]} mg/dL</td>
+                <td><strong>Serum Sodium:</strong> {record["serum_sodium"]} mEq/L</td>
+            </tr>
+            <tr>
+                <td><strong>Anaemia:</strong> {record["anaemia"]}</td>
+                <td><strong>Diabetes:</strong> {record["diabetes"]}</td>
+                <td><strong>High Blood Pressure:</strong> {record["high_blood_pressure"]}</td>
+            </tr>
+            <tr>  
+                <td><strong>Sex:</strong> {record["sex"]}</td>
+                <td><strong>Smoking:</strong> {record["smoking"]}</td>
+                <td colspan='3'><strong>Follow-up Period:</strong> {record["time"]} days</td>
+            </tr>
+            <tr>
+                <td><strong>Prediction:</strong> {prediction}</td>
+            </tr>
+        </table>
+        </div>
+        """
+
     st.markdown("")
     # Reset option to clear inputs only (keeping the model)
+    # Reset option to clear inputs only (keeping the model)
     if st.button("Reset"):
- 
-        st.session_state["age"] = 0
-        st.session_state["creatinine_phosphokinase"] = 0.0
-        st.session_state["ejection_fraction"] = 0.0
-        st.session_state["platelets"] = 0
-        st.session_state["serum_creatinine"] = 0.0
-        st.session_state["serum_sodium"] = 0.0
-        st.session_state["anaemia"] = "Yes"
-        st.session_state["diabetes"] = "Yes"
-        st.session_state["high_blood_pressure"] = "Yes"
-        st.session_state["sex"] = "Male"
-        st.session_state["smoking"] = "Yes"
-        st.session_state["time"] = 0
+        for key in ["age", "creatinine_phosphokinase", "ejection_fraction", "platelets", 
+                    "serum_creatinine", "serum_sodium", "anaemia", "diabetes", 
+                    "high_blood_pressure", "sex", "smoking", "time"]:
+            if key in st.session_state:
+                del st.session_state[key]
 
         st.success("All inputs have been reset. You can continue entering data.")
+    
+    st.markdown("---") 
+      # Display input history in styled format
+    st.subheader("Input History")
+    if "input_history" in st.session_state:
+        for idx, record in enumerate(st.session_state["input_history"]):
+            st.markdown(format_record(record, idx), unsafe_allow_html=True)
+    else:
+        st.info("No input history available.")
+    
 
 def show_upload_dataset():
     with st.sidebar:
