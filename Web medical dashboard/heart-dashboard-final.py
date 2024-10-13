@@ -5,6 +5,8 @@ import numpy as np
 import plotly.express as px
 from PIL import Image
 import plotly.graph_objects as go
+import warnings
+warnings.filterwarnings('ignore')
 
 
 # Streamlit page configuration
@@ -86,10 +88,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def show_login_image():
-    image_path_2 = "heart_to_say.png"
+    image_path_2 = r"assets/heart_to_say.png"
     image_2 = Image.open(image_path_2)  # Load image
     resized_image_2 = resize_image(image_2, width=300)  # Resize image
     st.image(resized_image_2, caption="", use_column_width=False)
+    print(image_path_2)
 
 # Login function
 def login(username=None, password=None):
@@ -244,7 +247,7 @@ def show_dashboard():
         logout()
     
     with st.sidebar:
-        image_path = "heart_to_say.png"
+        image_path = "assets/heart_to_say.png"
         image = Image.open(image_path)
         resized_image = resize_image(image, width=300)
         st.image(resized_image, use_column_width=True)
@@ -961,46 +964,21 @@ def show_model_performance(df):
     X = df[selected_features]
     y = df["DEATH_EVENT"]
 
-    # Choose scaling method
-    st.sidebar.subheader("Select Scaling Method")
-    scaling_method = st.sidebar.selectbox(
-        "Choose a scaling method:",
-        ("StandardScaler", "MinMaxScaler", "RobustScaler","None")
-    )
-
-    # Scaling based on user's choice
-    if scaling_method == "StandardScaler":
-        scaler = StandardScaler()
-    elif scaling_method == "MinMaxScaler":
-        scaler = MinMaxScaler()
-    elif scaling_method == "RobustScaler":
-        scaler = RobustScaler()
-    elif scaling_method == "None":
-        scaler = None
-
-    # Use the appropriate scaling method or original data
-    if scaler is not None:
-        X_scaled = scaler.fit_transform(X)
-        X_scaled = pd.DataFrame(X_scaled, columns=selected_features)
-    else:
-        X_scaled = X.copy() 
-
     # Load your pre-trained model from a specified path
     model_path = 'assets/logistic_regression_model.pkl'  # Update the path as needed
     model = joblib.load(model_path)  # Load the model
 
     # Assuming X_scaled is already defined elsewhere in your code
     # Make predictions
-    predictions = model.predict(X_scaled)
+    predictions = model.predict(X)
     predictions_df = pd.DataFrame(predictions, columns=['Predictions'])
         
     df = pd.concat([df.reset_index(drop=True), predictions_df], axis=1)
 
-
     # User selection for evaluation or SHAP
     analysis_option = st.sidebar.selectbox(
         "Select Analysis Type:",
-        ("View Predictions", "Model Performance", "SHAP Analysis", "Upload New Data")
+        ("View Predictions", "Model Performance", "SHAP Analysis")
     )
 
     if analysis_option == "Model Performance":
@@ -1031,7 +1009,7 @@ def show_model_performance(df):
 
             - **Support**: This indicates the number of actual occurrences of each class in the specified dataset. It helps in understanding the distribution of classes and the relevance of other metrics.
 
-            Overall, the classification report is crucial for evaluating the model’s effectiveness, especially in cases where class imbalance exists. By analyzing these metrics, we can gain insights into areas for improvement and make informed decisions about model optimization.
+            Overall, the classification report is crucial for evaluating the model's effectiveness, especially in cases where class imbalance exists. By analyzing these metrics, we can gain insights into areas for improvement and make informed decisions about model optimization.
             """)
 
         with left_column:
@@ -1063,9 +1041,9 @@ def show_model_performance(df):
             - **False Negative (FN)**: The number of instances incorrectly predicted as negative (also known as Type II error).
 
             From the confusion matrix, you can also derive several important metrics:
-            - **Accuracy**: \((TP + TN) / (TP + TN + FP + FN)\) - Overall correctness of the model.
-            - **Precision**: \(TP / (TP + FP)\) - How many of the predicted positives are actually positive.
-            - **Recall**: \(TP / (TP + FN)\) - How many of the actual positives were correctly identified.
+            - **Accuracy**: \\((TP + TN) / (TP + TN + FP + FN)\\) - Overall correctness of the model.
+            - **Precision**: \\(TP / (TP + FP)\\) - How many of the predicted positives are actually positive.
+            - **Recall**: \\(TP / (TP + FN)\\) - How many of the actual positives were correctly identified.
             - **F1-Score**: The harmonic mean of precision and recall.
 
             The confusion matrix is a powerful tool for understanding the strengths and weaknesses of the classification model, helping to identify specific areas where the model may need improvement. By analyzing the counts, we can gain insights into class-specific performance and potential biases in the model.
@@ -1075,7 +1053,7 @@ def show_model_performance(df):
     elif analysis_option == "SHAP Analysis":
         st.header("SHAP Analysis")
         
-        X_scaled_np = np.array(X_scaled)
+        X_scaled_np = np.array(X)
         y_np = y.values
         X_sample = shap.sample(X_scaled_np, 50)
         class_labels = np.unique(y_np)
