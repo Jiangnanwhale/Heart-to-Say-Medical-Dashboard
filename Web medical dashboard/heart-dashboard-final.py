@@ -1042,9 +1042,9 @@ def show_model_performance(df):
 
             From the confusion matrix, you can also derive several important metrics:
             - **Accuracy**: \\((TP + TN) / (TP + TN + FP + FN)\\) - Overall correctness of the model.
-            - **Precision**: \\(TP / (TP + FP)\\) - How many of the predicted positives are actually positive.
-            - **Recall**: \\(TP / (TP + FN)\\) - How many of the actual positives were correctly identified.
-            - **F1-Score**: The harmonic mean of precision and recall.
+        - **Precision**: \\(TP / (TP + FP)\\) - How many of the predicted positives are actually positive.
+        - **Recall**: \\(TP / (TP + FN)\\) - How many of the actual positives were correctly identified.
+        - **F1-Score**: The harmonic mean of precision and recall.
 
             The confusion matrix is a powerful tool for understanding the strengths and weaknesses of the classification model, helping to identify specific areas where the model may need improvement. By analyzing the counts, we can gain insights into class-specific performance and potential biases in the model.
             """)
@@ -1184,36 +1184,34 @@ def show_model_performance(df):
                 margin-bottom: 20px;
                 color: #333;
                 border: 1px solid #ddd;
+                max-width: 900px;
             ">   
                 <div style="
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 20px;
+                    margin-bottom: 10px;
                 ">
                     <h2 style="
                         margin: 0;
                         font-size: 22px;
                         color: #2c3e50;
                         border-bottom: 2px solid #3498db;
-                        width: 150px;
-                        padding-bottom: 10px;
+                        padding-bottom: 15px;
                         flex: 1;
                     ">
-                        Patient Index: <br>
-                        {patient_index}
+                        Patient Index:{patient_index}
                     </h2>
                     <h2 style="
                         margin: 0;
                         font-size: 22px;
                         color: #2c3e50;
                         border-bottom: 2px solid #3498db;
-                        padding-bottom: 10px;
+                        padding-bottom: 15px;
                         flex: 1;
                         text-align: right;
                     ">
-                        Model: <br>
-                        {model}
+                        Model: {model}
                     </h2>
                 </div>
                 <p style="
