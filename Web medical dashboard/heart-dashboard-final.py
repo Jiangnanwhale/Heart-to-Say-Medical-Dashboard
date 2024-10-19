@@ -259,7 +259,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Predictive analytics","Descriptive analytics", "Diagnostic analytics", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Diagnostic analytics","Predictive analytics", "Contact Us"])
     
     df = pd.read_csv("d:/KI/project management_SU/PROHI-dashboard-class-exercise/heart_failure_clinical_records_dataset.csv")
     if option == "Descriptive analytics":
@@ -269,9 +269,57 @@ def show_input_data():
     elif option == "Contact Us":
         show_contact_us()
     elif option == "Predictive analytics":
-        show_model_performance(df)
+        with st.sidebar:
+            sub_option = st.radio("Choose an action:", ["Input your data", "Show model performance"])
+        if sub_option == "Input your data":
+            upload_pre_model()
+        elif sub_option == "Show model performance":
+            show_model_performance(df)
     elif option == "Home":
-        upload_pre_model()
+        show_home()
+
+def show_home():
+    st.title("💖 Welcome to Heart to Say Dashboard")
+    st.markdown("---")
+    
+    st.markdown(
+        """
+        **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
+        By utilizing patient data and advanced analytics, we aim to provide insights for better clinical decision-making.
+        """
+    )
+    
+    st.markdown("### Dashboard Features")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(
+            """
+            - **🏠 Home**: 
+              Provides an overview of the dashboard's functionality.
+            - **📊 Descriptive Analytics**: 
+              Explore heart failure patient data, enabling healthcare professionals to view trends and prevalence based on:
+              - Age and gender
+              - Smoking status
+              - Comorbidities
+              - Laboratory test results
+            """
+        )
+    
+    with col2:
+        st.markdown(
+            """
+            - **🔍 Diagnostic Analytics**: 
+              Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview.
+            - **🤖 Predictive Analytics**: 
+              Input patient data on heart failure risk factors to predict the risk level of mortality.
+            - **📞 Contact Us**: 
+              Get in touch for more information about the project, our team, and how to reach us.
+            """
+        )
+    
+    st.sidebar.info("Navigate through the tabs to explore different analytics and features.")
+
 
 def upload_pre_model():
     st.title("Input Your Medical Data")
