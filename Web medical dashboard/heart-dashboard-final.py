@@ -247,7 +247,7 @@ def show_dashboard():
         logout()
     
     with st.sidebar:
-        image_path = "assets/heart_to_say.png"
+        image_path = r"assets/heart_to_say.png"
         image = Image.open(image_path)
         resized_image = resize_image(image, width=300)
         st.image(resized_image, use_column_width=True)
@@ -587,74 +587,176 @@ def show_data_overview(df):
     
     st.markdown("")
     st.markdown("")
-    st.write("Here, numerical features are defined if the the attribute has more than 5 unique elements else it is a categorical feature. By the way, all categorical features here are boolean features.")
-    left_column, right_column = st.columns(2)
-    
-    col = list(df)
-    categorical_features = []
-    numerical_features = []
-    for i in col:
-        if len(df[i].unique()) > 5:
-            numerical_features.append(i)
-        else:
-            categorical_features.append(i)
-        
-    with left_column:
 
-        st.write("### Distribution of Categorical Features")
-    
-        st.write("Select a Categorical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
-        selected_column = st.selectbox("Select a feature to visualize", categorical_features)
-        if 'DEATH_EVENT' in categorical_features:
-            categorical_features.remove('DEATH_EVENT')
-    
-        count_data = df[selected_column].value_counts().reset_index()
-        count_data.columns = [selected_column, 'count']
-
-        fig_feature_1 = px.pie(
-            count_data, 
-            names=selected_column, 
-            values='count', 
-            color_discrete_sequence=['#2ca02c', '#ff7f0e'], 
-            title=f'Distribution of {selected_column}'
+    condition_filter = st.radio(
+        "Choose the condition for data distribution:",
+        ("Uivariate Analysis", "Bivariate or Multivariate Analysis")
         )
-        fig_feature_1.update_traces(textinfo='percent+label',
-                                    marker=dict(line=dict(color='white', width=4))
-        )           
-        st.plotly_chart(fig_feature_1, use_container_width=True)
 
-        fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
-                    color_discrete_map={0: '#3498db', 1: '#e74c3c'},
-                       title=f'Distribution of {selected_column} vs Death Event' )
+    if condition_filter == "Uivariate Analysis":
 
-        st.plotly_chart(fig_feature_2, use_container_width=True)
-        st.write('''all the graphs near about share the same pattern. Nothing special here.''')
-   
-    with right_column:
-
-        st.write("### Distribution of Numerical Features")
-
-        st.write("Select a numerical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
-        selected_column = st.selectbox("Select a feature to visualize", numerical_features)
-        if 'DEATH_EVENT' in numerical_features:
-            numerical_features.remove('DEATH_EVENT')
-
-        fig_feature_1 = px.histogram(df, x=selected_column, barmode='group',
-                                   color_discrete_sequence=['#FF69B4'],
-                                    title=f'Distribution of {selected_column}')
-        fig_feature_1.update_layout(bargap=0.2)
+        st.write("Here, numerical features are defined if the the attribute has more than 5 unique elements else it is a categorical feature. By the way, all categorical features here are boolean features.")
+        left_column, right_column = st.columns(2)
         
-        fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
-                                    color_discrete_sequence=['#8A2BE2', '#FFD700'],
-                                    title=f'Distribution of {selected_column} vs Death Event')
+        col = list(df)
+        categorical_features = []
+        numerical_features = []
+        for i in col:
+            if len(df[i].unique()) > 5:
+                numerical_features.append(i)
+            else:
+                categorical_features.append(i)
+            
+        with left_column:
+
+            st.write("### Distribution of Categorical Features")
         
-        st.plotly_chart(fig_feature_1, use_container_width=True)
-        st.plotly_chart(fig_feature_2, use_container_width=True)
-        st.write('''Cases of "DEATH_EVENT" initiate from the "age" of 42. Some specific peaks of high cases of "DEATH_EVENT" can be observed at 45, 50, 60, 65, 70, 75 and 80.
-                   High cases of "DEATH_EVENT" can be observed for "ejaction_fraction" values from 20 - 60.
-                       "serum_creatinine" values from 0.6 - 3.0 have higher probability to lead to DEATH_EVENT.
-                        "serum_sodium" values 127 - 145 indicate towards a "DEATH_EVENT" due to "heart failure".''')
+            st.write("Select a Categorical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
+            selected_column = st.selectbox("Select a feature to visualize", categorical_features)
+            if 'DEATH_EVENT' in categorical_features:
+                categorical_features.remove('DEATH_EVENT')
+        
+            count_data = df[selected_column].value_counts().reset_index()
+            count_data.columns = [selected_column, 'count']
+
+            fig_feature_1 = px.pie(
+                count_data, 
+                names=selected_column, 
+                values='count', 
+                color_discrete_sequence=['#2ca02c', '#ff7f0e'], 
+                title=f'Distribution of {selected_column}'
+            )
+            fig_feature_1.update_traces(textinfo='percent+label',
+                                        marker=dict(line=dict(color='white', width=4))
+            )           
+            st.plotly_chart(fig_feature_1, use_container_width=True)
+
+            fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
+                        color_discrete_map={0: '#3498db', 1: '#e74c3c'},
+                        title=f'Distribution of {selected_column} vs Death Event' )
+
+            st.plotly_chart(fig_feature_2, use_container_width=True)
     
+        with right_column:
+
+            st.write("### Distribution of Numerical Features")
+
+            st.write("Select a numerical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
+            selected_column = st.selectbox("Select a feature to visualize", numerical_features)
+            if 'DEATH_EVENT' in numerical_features:
+                numerical_features.remove('DEATH_EVENT')
+
+            fig_feature_1 = px.histogram(df, x=selected_column, barmode='group',
+                                    color_discrete_sequence=['#FF69B4'],
+                                        title=f'Distribution of {selected_column}')
+            fig_feature_1.update_layout(bargap=0.2)
+            
+            fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
+                                        color_discrete_sequence=['#8A2BE2', '#FFD700'],
+                                        title=f'Distribution of {selected_column} vs Death Event')
+            
+            st.plotly_chart(fig_feature_1, use_container_width=True)
+            st.plotly_chart(fig_feature_2, use_container_width=True)
+
+        st.write(
+            """
+            ### Q&A Section
+
+            #### Q1: What proportion of heart failure patients died compared to those who survived in the dataset?
+            **A1:** Based on the pie chart, the dataset has almost **68%** of heart failure patients still alive, while **32%** are dead before the follow-up period. Good news for the target users; however, it may lead to difficulty in prediction modeling.
+
+            #### Q2: How does the age distribution vary, and which age group has the highest number of heart failure patients in the dataset?
+            **A2:** Based on the results, heart failure patients range from **40 to 95 years old**, with an **average age of 61 years**. This is close to the global average. What is worrisome is that patients below **60 years of age** have heart failure.
+
+            #### Q3: What is the gender proportion of heart failure patients?
+            **A3:** Based on the results, **65%** are male, and **35%** are female. This shows that heart failure is more common among males. In scientific literature, it shows that females with heart failure survive longer than their male counterparts and have a lower risk of death. This is an interesting aspect to explore in the dataset.
+            """
+            )
+
+    elif condition_filter == "Bivariate or Multivariate Analysis":
+        
+        left_column, right_column = st.columns(2)
+
+        with left_column:
+            st.write("## Distribution Based on Smoking Status and Selected Features")
+            st.write("Visualize how smoking habits differ by selected features in the dataset.")
+
+            grouped_data = df.groupby(by=["smoking", "sex"]).size().unstack()
+
+            grouped_data = grouped_data.reset_index()
+            grouped_data.columns = ['smoking'] + list(grouped_data.columns[1:])
+            grouped_data = grouped_data.melt(id_vars='smoking', var_name='sex', value_name='count')
+            
+            fig = px.bar(grouped_data, 
+                     x='count', 
+                     y='smoking', 
+                     color='sex',
+                     orientation='h', 
+                     title="Distribution of Smoking Status Based On Sex In Heart Failure Patients",
+                     color_discrete_sequence=['#FE251B', '#D3D3D3'])
+
+            fig.update_layout(
+                xaxis_title="Number of Heart Failure Patients",
+                yaxis_title="Smoking Status",
+                barmode='stack',
+                legend_title_text='Sex',
+                yaxis=dict(tickvals=[0, 1], ticktext=['Non-Smoker', 'Smoker'])
+            )
+
+            for i, row in grouped_data.iterrows():
+                fig.add_annotation(
+                    x=row['count'] / 2,
+                    y=row['smoking'],
+                    text=str(row['count']),
+                    showarrow=False,
+                    font=dict(color="black"),
+                    xanchor='center',
+                    yanchor='middle'
+                )
+    
+            st.plotly_chart(fig, use_container_width=True)
+            st.write("""
+                    #### Q4: What is the distribution of smokers versus non-smokers among heart failure patients, and how does it differ by gender?
+                    **A4:** The diagram highlights a significant difference between male and female in smoking habits among heart failure patients, 
+                    with male patients being much more likely to smoke. This is a good insight for conducting targeting prevention and awareness campaigns specifically 
+                    toward reducing smoking among men to help mitigate heart failure risks.
+                     """)
+            
+        with right_column:
+            st.write("## Distribution Based on Comorbidities (Anaemia, Diabetes, High Blood Pressure)")
+            st.write("Explore the distribution of heart failure patients based on the presence of common comorbid conditions.")
+            df.groupby(by=["anaemia", "diabetes", "high_blood_pressure"]).size()
+           
+            grouped_data = df.groupby(by=["anaemia", "diabetes", "high_blood_pressure"]).size().reset_index(name='count')
+            
+            label_mapping = {
+                (0, 0, 0): "No Comorbidity",
+                (1, 0, 0): "Have Anemia",
+                (1, 1, 0): "Have Anemia & Diabetes",
+                (1, 0, 1): "Have Anemia & Hypertension",
+                (0, 1, 0): "Have Diabetes",
+                (0, 1, 1): "Have Diabetes & Hypertension",
+                (0, 0, 1): "Have Hypertension",
+                (1, 1, 1): "Have Anemia, Diabetes & Hypertension",
+            }
+
+            # Create labels for comorbidity status
+            grouped_data['label'] = grouped_data.apply(lambda row: label_mapping[
+                (row['anaemia'], row['diabetes'], row['high_blood_pressure'])], axis=1)
+            grouped_data = grouped_data.sort_values(by='count', ascending=False)
+
+            fig_comorbidities = px.bar(grouped_data, x='count', y='label', orientation='h', 
+                                    title="Distribution of Heart Failure Patients Based on Selected Comorbidities",
+                                    labels={'count': 'Number of Patients', 'label': 'Comorbidity Status'},
+                                    color='count', 
+                                    color_continuous_scale='Reds')
+            st.plotly_chart(fig_comorbidities, use_container_width=True)
+            st.write("""
+                    #### Q5: What is the distribution of different combinations of comorbidities (e.g., anaemia, diabetes, hypertension) among heart failure patients?
+                    **A5:** The diagram reveals that many heart failure patients have no comorbidities (n=67) in the dataset. 
+                    However, a significant number of patients suffer from single or combined conditions, with diabetes and anaemia being the most common conditions. 
+                    From the distribution, it could be suggested that the presence of multiple comorbodities play a role in the death of heart failure patients. Understanding these patterns could be valuable in managing patient outcomes and tailoring treatment approaches.
+                    """)
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
 def show_eda(df):
@@ -752,7 +854,6 @@ def basic_feature_relationships(df):
                 stats_df = pd.concat(stats_dict, axis=1).T
                 st.dataframe(stats_df)
 
-
                 st.markdown("<br>"*1, unsafe_allow_html=True)
 
             st.subheader(f"Box Plot: {x_axis} vs {y_axis} grouped by {color_feature.capitalize()}")
@@ -814,6 +915,72 @@ def basic_feature_relationships(df):
         st.write("**Total Records:** ", len(df))
         st.write("**Features:**", len(df.columns))
         st.write("**Columns:**", ', '.join(df.columns))
+
+
+    # Define the questions and their corresponding answers
+    qa_data = {
+        "Q2": {
+            "question": "Why Can Patients with High Serum Creatinine Levels Have Worse Outcomes Even If Their Ejection Fraction Is Normal?",
+            "answer": """
+            High serum creatinine is a significant biomarker for heart failure, as kidney dysfunction is common among these patients [28]. It is associated with an increased risk of mortality. However, a pertinent question arises: why are patients with normal ejection fractions but high serum creatinine levels at risk of death? 
+
+            To explore this, we first need to establish the normal ranges for serum creatinine and ejection fraction:
+            
+            - **Normal Serum Creatinine Levels:**
+                - Men: **0.74 to 1.35 mg/dL** [26]
+                - Women: **0.59 to 1.04 mg/dL**
+            
+            - **Normal Ejection Fraction:** 
+                - An ejection fraction of over **50%** is considered normal for both sexes [27].
+
+            Based on the analysis of this subpopulation, the main findings are as follows:
+
+            - **Anemia**: Patients with anemia are more likely to experience mortality, as they show a higher count in the "Dead" category compared to those who survived.
+            
+            - **Gender**: Being male is a significant factor in the risk of mortality.
+
+            - **Serum Sodium Levels**: Those who passed away tended to have higher serum sodium levels on average, concentrated between **137-142 mmol/L**.
+
+            - **Platelet Counts**: Survivors generally had higher platelet counts, while those who died had relatively lower counts. This suggests that lower platelet counts might be associated with worse outcomes.
+
+            - **Diabetes**: The role of diabetes in mortality could not be clearly distinguished from the dataset.
+
+            In summary, while high serum creatinine levels indicate kidney dysfunction and a risk factor for mortality, other factors such as anemia, gender, serum sodium levels, and platelet counts also play critical roles in determining patient outcomes.
+            """
+        },
+        "Q3": {
+            "question": "Why Do Some Patients Have Higher Serum Creatinine Levels Than Others?",
+            "answer": """
+            - **Sex (Boxplot)**: The boxplot of serum creatinine by sex shows that males tend to have higher serum creatinine levels than females. This could be related to differences in muscle mass, as creatinine is a byproduct of muscle metabolism.
+
+            - **High Blood Pressure (Boxplot)**: The boxplot for high blood pressure reveals that patients with high blood pressure tend to have slightly higher serum creatinine levels. This is likely due to the long-term effects of high blood pressure on kidney function, leading to reduced filtration efficiency and thus higher serum creatinine.
+
+            - **Diabetes (Boxplot)**: The boxplot for diabetes shows that diabetic patients tend to have higher serum creatinine levels. This could be due to diabetic nephropathy, a condition where high blood sugar levels damage the kidneys, reducing their ability to filter creatinine from the blood.
+
+            - **Anaemia (Boxplot)**: Patients with anaemia seem to show slightly higher serum creatinine levels. Anaemia can be associated with kidney problems, as the kidneys help regulate red blood cell production. Impaired kidney function, which can increase creatinine levels, may lead to anaemia in some patients.
+
+            - **Smoking (Boxplot)**: The boxplot for smoking status shows that smokers tend to have higher serum creatinine levels than non-smokers. Smoking is known to impair kidney function, likely due to the harmful effects of tobacco on the cardiovascular system, which in turn affects kidney filtration.
+
+            - **Age (Scatter Plot)**: The scatter plot of serum creatinine vs. age suggests that older patients generally have higher serum creatinine levels. This could be due to the natural decline in kidney function with age, as the kidneys become less efficient at filtering waste from the blood over time.
+
+            - **Ejection Fraction (Scatter Plot)**: The scatter plot of serum creatinine vs. ejection fraction indicates that patients with lower ejection fractions tend to have higher creatinine levels. Reduced heart function (low ejection fraction) can impair kidney function due to poor circulation and reduced kidney perfusion, leading to higher creatinine.
+
+            - **Creatinine Phosphokinase (CPK) (Scatter Plot)**: The scatter plot of serum creatinine vs. CPK levels shows no clear linear trend, but patients with higher CPK levels (indicating muscle injury or stress) may have elevated creatinine due to increased muscle breakdown.
+
+            - **Platelet Count (Scatter Plot)**: The scatter plot of serum creatinine vs. platelet count suggests no strong correlation, indicating that platelet levels may not significantly influence serum creatinine levels.
+
+            - **Serum Sodium (Scatter Plot)**: The scatter plot of serum creatinine vs. serum sodium levels shows some trend where lower sodium levels could be associated with higher creatinine levels. Low sodium could be an indicator of kidney dysfunction, which correlates with higher creatinine.
+
+            In summary, factors such as sex, high blood pressure, diabetes, anaemia, smoking, and age appear to be significant contributors to variations in serum creatinine levels, as visualized in the plots. This supports the idea that differences in kidney function and muscle metabolism, influenced by these variables, are key reasons for the higher creatinine levels in some patients.
+            """
+        }
+    }
+
+    selected_question = st.selectbox("Select a question to display:", options=list(qa_data.keys()))
+
+    # Display the selected question and answer
+    st.write(f"#### {qa_data[selected_question]['question']}")
+    st.write(qa_data[selected_question]['answer'])
 
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
@@ -912,27 +1079,47 @@ def show_correlation(df):
         st.plotly_chart(fig, use_container_width=True)
 
         # Detailed Interpretation
-        st.markdown("### Interpretation of the Correlation Matrix")
-        st.markdown("""
-            The correlation matrix shows the pairwise relationships between the selected features.
-            
-            #### Key Points to Understand:
-            - **Values close to 1**: Strong positive correlation. This indicates that as one feature increases, the other feature tends to increase as well. For example, if `feature A` and `feature B` have a correlation of 0.9, when `feature A` increases, `feature B` likely increases.
-            - **Values close to -1**: Strong negative correlation. This suggests that as one feature increases, the other decreases. For instance, a correlation of -0.8 between `feature X` and `feature Y` suggests that when `feature X` increases, `feature Y` decreases.
-            - **Values close to 0**: Little or no linear relationship. Features with correlations near zero are not linearly related, meaning one does not predict or affect the other in a linear way.
-            
-            #### How to Use This Information:
-            - **Identifying Predictors**: High correlation values (either positive or negative) suggest that one feature could be a good predictor for another. This is particularly useful in feature selection for predictive modeling, where multicollinearity should be considered.
-            - **Dropping Redundant Features**: If two features are highly correlated, one may be redundant and could be dropped from your model to avoid multicollinearity.
-            - **Feature Engineering**: Insights from the correlation matrix can help in designing new features by combining or transforming existing ones (e.g., creating interaction terms or scaling features).
-        """)
+        st.write(
+                """
+                #### Q1: Why Are Certain Heart Failure Patients at Risk of Death?
 
-        st.markdown("""
-            #### Next Steps:
-            After analyzing the correlation matrix, you may consider:
-            - **Further Statistical Analysis**: Performing regression or clustering with highly correlated features.
-            - **Visual Exploration**: Plotting scatter plots for pairs of highly correlated features to visualize their relationships.
-        """)
+                **A1:** To answer the question "Why Are Certain Heart Failure Patients at Risk of Death?", we need to first observe the correlations between features and the mortality outcome. Correlation coefficients range from **-1 to 1**:
+                - A coefficient close to **1** indicates a positive correlation, meaning as one variable increases, so does the other.
+                - A coefficient close to **-1** indicates a negative correlation, meaning as one variable increases, the other decreases.
+                - A coefficient around **0** suggests no correlation.
+
+                From the heatmap analysis, we can understand that the following features have relatively stronger correlations with death:
+
+                - **Serum Creatinine:** Positive correlation with DEATH_EVENT (**0.29**)
+                - Higher serum creatinine levels are associated with increased likelihood of mortality.
+                
+                - **Ejection Fraction:** Negative correlation with DEATH_EVENT (**-0.27**)
+                - A higher ejection fraction indicates a lower risk of mortality, highlighting the negative correlation.
+                
+                - **Time:** Negative correlation with DEATH_EVENT (**-0.53**)
+                - Longer time (days) a patient lives correlates with lower mortality risk, emphasizing the importance of intervention and care plans for heart failure patients.
+
+                - **Age:** Positive correlation with DEATH_EVENT (**0.25**)
+                - Older patients are more likely to experience mortality.
+
+                - **Serum Sodium:** Negative correlation with DEATH_EVENT (**-0.20**)
+                - Higher serum sodium levels indicate a lower likelihood of death.
+
+                **Conclusion:** Certain heart failure patients are more likely to die due to:
+                - Higher age
+                - Higher serum creatinine levels
+                - Lower ejection fraction
+                - Lower serum sodium levels
+
+                Time is also a significant factor, but its interpretation depends on the context of the patient's care.
+
+                In scientific literature, higher serum creatinine, lower ejection fraction, and lower serum sodium (hyponatremia) are linked to an increased risk of mortality, validating the correlations found in this dataset [23-25].
+
+                It's noteworthy that smoking, diabetes, anemia, and high blood pressure did not show strong correlations to mortality in this dataset. This suggests that these features alone are not sufficient to determine the mortality risk for patients.
+                """
+            )
+
+        
     else:
         st.warning("Please select at least one feature for correlation analysis.")
 
