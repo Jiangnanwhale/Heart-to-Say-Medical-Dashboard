@@ -788,7 +788,7 @@ def basic_feature_relationships(df):
 
     with col1:
 
-        chart_type = st.radio("Select Chart Type:", ["Line Plot", "Box Plot","KDE Plot"])
+        chart_type = st.radio("Select Chart Type:", ["Line Plot", "Box Plot","Scatter Plot"])
         
         if chart_type == "Line Plot":
 
@@ -875,8 +875,8 @@ def basic_feature_relationships(df):
                 )
             st.plotly_chart(fig)
 
-        elif chart_type == "KDE Plot":
-            left_column, middle_column, right_column =st.columns(3)
+        elif chart_type == "Scatter Plot":
+            left_column, middle_column, right_column = st.columns(3)
             with left_column:
                 x_axis = st.selectbox('Select X-axis feature:', df.columns.tolist())
             with middle_column:
@@ -884,8 +884,9 @@ def basic_feature_relationships(df):
             with right_column:
                 color_feature = st.selectbox('Select feature for color grouping:', df.columns.tolist())
 
-            st.write("### KDE Plot Visualization")
-            st.write("A Kernel Density Estimate (KDE) plot is useful for visualizing the probability density of a continuous variable.")
+            st.write("### Scatter Plot Visualization")
+            st.write("Scatter plots are great for visualizing relationships between two continuous variables, with the option to color-code based on a third feature.")
+
             if x_axis and y_axis and color_feature:
                 st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}, **Color:** {color_feature}")
 
@@ -899,23 +900,27 @@ def basic_feature_relationships(df):
                 stats_df = pd.concat(stats_dict, axis=1).T
                 st.dataframe(stats_df)
 
+                st.markdown("<br>" * 1, unsafe_allow_html=True)
 
-                st.markdown("<br>"*1, unsafe_allow_html=True)
+                # Scatter Plot
+                st.subheader(f"Scatter Plot: {x_axis} vs {y_axis} grouped by {color_feature.capitalize()}")
+                custom_colors = px.colors.qualitative.Set1
 
-            st.subheader(f"KDE Plot: {x_axis} vs {y_axis} grouped by {color_feature.capitalize()}")
-            custom_colors = px.colors.qualitative.Set1
-            fig = px.density_contour(
+                fig = px.scatter(
                     df, x=x_axis, y=y_axis, color=color_feature,
-                    marginal_x="histogram", marginal_y="histogram",  # Optional histograms on margins
-                    color_discrete_sequence=custom_colors
+                    color_discrete_sequence=custom_colors,
+                    title=f"Scatter Plot of {y_axis} vs {x_axis}",
+                    labels={x_axis: x_axis.capitalize(), y_axis: y_axis.capitalize(), color_feature: color_feature.capitalize()},
+                    width=1000,
+                    height=400
                 )
 
-            fig.update_layout(
-                    width=1000,  # Adjust width to match selectbox
-                    height=400,
-                    margin=dict(l=0, r=0, t=0, b=50)  # Adjust top margin here
+                fig.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=50)  # Adjust margins if necessary
                 )
-            st.plotly_chart(fig)
+
+                st.plotly_chart(fig)
+
 
     with col2:
 
