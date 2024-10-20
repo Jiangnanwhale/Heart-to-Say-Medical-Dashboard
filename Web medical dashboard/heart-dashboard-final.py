@@ -840,32 +840,30 @@ def basic_feature_relationships(df):
                 st.plotly_chart(fig)
 
         elif chart_type == "Box Plot":
-            left_column, middle_column, right_column =st.columns(3)
+            left_column, right_column =st.columns(2)
             with left_column:
                 x_axis = st.selectbox('Select X-axis feature:', df.columns.tolist())
-            with middle_column:
-                y_axis = st.selectbox('Select Y-axis feature:', df.columns.tolist())
             with right_column:
-                color_feature = st.selectbox('Select feature for color grouping:', df.columns.tolist())
+                y_axis = st.selectbox('Select Y-axis feature:', df.columns.tolist())
+            
             st.write("### Box Plot Visualization")
             st.write("A box plot is useful for displaying the distribution of a dataset based on a continuous variable, grouped by another variable.")
-            if x_axis and y_axis and color_feature:
-                st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}, **Color:** {color_feature}")
+            if x_axis and y_axis:
+                st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}")
 
                 # Feature Stats
                 st.subheader("Feature Stats")
                 stats_dict = {
                     f"{x_axis}": df[x_axis].describe(),
                     f"{y_axis}": df[y_axis].describe(),
-                    f"{color_feature}": df[color_feature].describe()
                 }
                 stats_df = pd.concat(stats_dict, axis=1).T
                 st.dataframe(stats_df)
 
                 st.markdown("<br>"*1, unsafe_allow_html=True)
 
-            st.subheader(f"Box Plot: {x_axis} vs {y_axis} grouped by {color_feature.capitalize()}")
-            fig = px.box(df, x=x_axis, y=y_axis, color=color_feature,
+            st.subheader(f"Box Plot: {x_axis} vs {y_axis}")
+            fig = px.box(df, x=x_axis, y=y_axis,
                              labels={x_axis: x_axis, y_axis: y_axis},
                              )
             fig.update_layout(
@@ -876,26 +874,24 @@ def basic_feature_relationships(df):
             st.plotly_chart(fig)
 
         elif chart_type == "Scatter Plot":
-            left_column, middle_column, right_column = st.columns(3)
+            left_column, right_column = st.columns(2)
             with left_column:
                 x_axis = st.selectbox('Select X-axis feature:', df.columns.tolist())
-            with middle_column:
-                y_axis = st.selectbox('Select Y-axis feature:', df.columns.tolist())
+                
             with right_column:
-                color_feature = st.selectbox('Select feature for color grouping:', df.columns.tolist())
+                y_axis = st.selectbox('Select Y-axis feature:', df.columns.tolist())
 
             st.write("### Scatter Plot Visualization")
             st.write("Scatter plots are great for visualizing relationships between two continuous variables, with the option to color-code based on a third feature.")
 
-            if x_axis and y_axis and color_feature:
-                st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}, **Color:** {color_feature}")
+            if x_axis and y_axis:
+                st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}")
 
                 # Feature Stats
                 st.subheader("Feature Stats")
                 stats_dict = {
                     f"{x_axis}": df[x_axis].describe(),
                     f"{y_axis}": df[y_axis].describe(),
-                    f"{color_feature}": df[color_feature].describe()
                 }
                 stats_df = pd.concat(stats_dict, axis=1).T
                 st.dataframe(stats_df)
@@ -903,14 +899,14 @@ def basic_feature_relationships(df):
                 st.markdown("<br>" * 1, unsafe_allow_html=True)
 
                 # Scatter Plot
-                st.subheader(f"Scatter Plot: {x_axis} vs {y_axis} grouped by {color_feature.capitalize()}")
+                st.subheader(f"Scatter Plot: {x_axis} vs {y_axis}")
                 custom_colors = px.colors.qualitative.Set1
 
                 fig = px.scatter(
-                    df, x=x_axis, y=y_axis, color=color_feature,
+                    df, x=x_axis, y=y_axis,
                     color_discrete_sequence=custom_colors,
                     title=f"Scatter Plot of {y_axis} vs {x_axis}",
-                    labels={x_axis: x_axis.capitalize(), y_axis: y_axis.capitalize(), color_feature: color_feature.capitalize()},
+                    labels={x_axis: x_axis.capitalize(), y_axis: y_axis.capitalize()},
                     width=1000,
                     height=400
                 )
