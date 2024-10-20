@@ -820,48 +820,9 @@ def basic_feature_relationships(df):
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
-def handle_highly_correlated_features(df, threshold=0.85):
-
-    corr_matrix = df.corr().abs()
-    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool_))
-
-    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
-    st.write(f"Highly correlated features (correlation > {threshold}): {to_drop}")
-
-    df_reduced = df.drop(to_drop, axis=1)
-    return df_reduced
-
 def show_clustering_analysis(df):
     st.title("Clustering Analysis")
     st.markdown("In this section, you can select features for clustering and explore patterns in your data.")
-
-
-    remove_correlated = st.checkbox("Remove Highly Correlated Features")
-    st.markdown("""
-    When enabled, features that have a correlation greater than the specified threshold will be removed. 
-    This can help reduce redundancy and improve the clustering results.
-    """)
-
-
-    if remove_correlated:
-        corr_threshold = st.slider("Correlation threshold:", 0.0, 1.0, 0.85)
-        st.markdown(f"Selected correlation threshold: {corr_threshold}. Features with a correlation higher than this will be removed.")
-
-        corr_matrix = df.corr()
-        to_remove = set()
-
-
-        for i in range(len(corr_matrix.columns)):
-            for j in range(i):
-                if abs(corr_matrix.iloc[i, j]) > corr_threshold:
-                    colname = corr_matrix.columns[i]
-                    to_remove.add(colname)
-
-
-        if to_remove:
-            st.write(f"Removed features due to high correlation (correlation > {corr_threshold}): {to_remove}")
-        else:
-            st.write(f"No features removed due to high correlation (correlation > {corr_threshold}).")
 
     left_column, right_column =st.columns(2)
     with left_column:
@@ -879,12 +840,7 @@ def show_clustering_analysis(df):
         if len(selected_features) > 0:
             selected_df = df[selected_features]
 
-
-            if remove_correlated:
-                selected_df = selected_df.drop(columns=to_remove.intersection(selected_features), errors='ignore')
-
             n_clusters = st.slider("Select number of clusters:", min_value=2, max_value=10, value=3)
-
 
             kmeans = KMeans(n_clusters=n_clusters)
             df['Cluster'] = kmeans.fit_predict(selected_df)
