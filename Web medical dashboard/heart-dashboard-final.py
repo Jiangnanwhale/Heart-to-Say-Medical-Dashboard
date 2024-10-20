@@ -1050,7 +1050,7 @@ import plotly.figure_factory as ff
 def show_correlation(df):
     st.subheader("Correlation Matrix")
 
-    selected_features = st.multiselect("Select features for correlation analysis:", df.columns.tolist(), default=df.columns.tolist())
+    selected_features = df.columns.tolist()
     st.markdown("")
 
     if len(selected_features) > 0:
@@ -1091,19 +1091,19 @@ def show_correlation(df):
                 From the heatmap analysis, we can understand that the following features have relatively stronger correlations with death:
 
                 - **Serum Creatinine:** Positive correlation with DEATH_EVENT (**0.29**)
-                - Higher serum creatinine levels are associated with increased likelihood of mortality.
+                -- Higher serum creatinine levels are associated with increased likelihood of mortality.
                 
                 - **Ejection Fraction:** Negative correlation with DEATH_EVENT (**-0.27**)
-                - A higher ejection fraction indicates a lower risk of mortality, highlighting the negative correlation.
+                -- A higher ejection fraction indicates a lower risk of mortality, highlighting the negative correlation.
                 
                 - **Time:** Negative correlation with DEATH_EVENT (**-0.53**)
-                - Longer time (days) a patient lives correlates with lower mortality risk, emphasizing the importance of intervention and care plans for heart failure patients.
+                -- Longer time (days) a patient lives correlates with lower mortality risk, emphasizing the importance of intervention and care plans for heart failure patients.
 
                 - **Age:** Positive correlation with DEATH_EVENT (**0.25**)
-                - Older patients are more likely to experience mortality.
+                -- Older patients are more likely to experience mortality.
 
                 - **Serum Sodium:** Negative correlation with DEATH_EVENT (**-0.20**)
-                - Higher serum sodium levels indicate a lower likelihood of death.
+                -- Higher serum sodium levels indicate a lower likelihood of death.
 
                 **Conclusion:** Certain heart failure patients are more likely to die due to:
                 - Higher age
@@ -1137,22 +1137,12 @@ import shap
 import matplotlib.pyplot as plt
 
 def show_model_performance(df):
-    # Select features
-    st.sidebar.subheader("Feature Selection")
+    
     all_features = df.columns.tolist()
     all_features.remove("DEATH_EVENT")
-    selected_features = st.sidebar.multiselect(
-        "Select features for modeling:",
-        options=all_features,
-        default=all_features
-    )
-    
-    if not selected_features:
-        st.error("Please select at least one feature.")
-        return
 
     # Preparing data
-    X = df[selected_features]
+    X = df[all_features] 
     y = df["DEATH_EVENT"]
 
     # Load your pre-trained model from a specified path
