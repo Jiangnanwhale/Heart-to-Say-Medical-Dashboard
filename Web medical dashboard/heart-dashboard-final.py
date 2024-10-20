@@ -205,7 +205,7 @@ def show_contact_us():
     st.markdown("""
     For any inquiries or support, please reach out to us at:
     
-    **Email**: [heart_to_say_team@dsv.su.se](mailto:heart_to_say_team@dsv.su.se)  
+    **Email**: heart_to_say_team@dsv.su.se
                 
     **Phone**: +46 123456789
                 
@@ -236,8 +236,16 @@ def show_contact_us():
     **References**:  
     1. Chicco D, Jurman G. Machine learning can predict survival of patients with heart failure from serum creatinine and ejection fraction alone. BMC Med Inform Decis Mak. 2020 Feb 3;20(1):16.  
     2. Kaggle. Heart Failure Prediction [Internet]. San Francisco, CA: Kaggle; [date unknown]. [cited 2024 Sep 11]. Available from: https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data  
+    3. Joseph P, Roy A, Lonn E, Störk S, Floras J, Mielniczuk L, et al. Global Variations in Heart Failure Etiology, Management, and Outcomes. JAMA. 2023 May 16;329(19):1650-1661.
+    4. Regitz-Zagrosek V. Sex and Gender Differences in Heart Failure. Int J Heart Fail. 2020 Apr 13;2(3):157-81.
+    5. Donzé JD, Beeler PE, Bates DW. Impact of Hyponatremia Correction on the Risk for 30-Day Readmission and Death in Patients with Congestive Heart Failure. Am J Med. 2016 Aug;129(8):836-42.
+    6. Stewart S, Playford D, Scalia GM, Currie P, Celermajer DS, Prior D, Codde J, Strange G; NEDA Investigators. Ejection fraction and mortality: a nationwide register-based cohort study of 499 153 women and men. Eur J Heart Fail. 2021 Mar;23(3):406-416.
+    7. Zhong J, Gao J, Luo JC, Zheng JL, Tu GW, Xue Y. Serum creatinine as a predictor of mortality in patients readmitted to the intensive care unit after cardiac surgery: a retrospective cohort study in China. J Thorac Dis. 2021 Mar;13(3):1728-1736.
+    8. Metra M, Cotter G, Gheorghiade M, Dei Cas L, Voors AA. The role of the kidney in heart failure. Eur Heart J. 2012 Sep;33(17):2135-42.
+    9. Mayo Clinic. Creatinine test [Internet]. Rochester, MN: Mayo Foundation for Medical Education and Research; 2022 [cited 2024 Oct 19]. Available from: https://www.mayoclinic.org/tests-procedures/creatinine-test/about/pac-20384646
+    10. British Heart Foundation. Heart failure [Internet]. London: British Heart Foundation; 2024 [cited 2024 Oct 19]. Available from: https://www.bhf.org.uk/informationsupport/conditions/heart-failure            
 
-    Got some thoughts or suggestions? Don't hesitate to reach out to us. We'd love to hear from you! 
+    **Got some thoughts or suggestions? Don't hesitate to reach out to us. We'd love to hear from you!**
     """)
 
     st.markdown("---") 
@@ -666,10 +674,10 @@ def show_data_overview(df):
             **A1:** Based on the pie chart, the dataset has almost **68%** of heart failure patients still alive, while **32%** are dead before the follow-up period. Good news for the target users; however, it may lead to difficulty in prediction modeling.
 
             #### Q2: How does the age distribution vary, and which age group has the highest number of heart failure patients in the dataset?
-            **A2:** Based on the results, heart failure patients range from **40 to 95 years old**, with an **average age of 61 years**. This is close to the global average. What is worrisome is that patients below **60 years of age** have heart failure.
+            **A2:** Based on the results, heart failure patients range from **40 to 95 years old**, with an **average age of 61 years**. This is close to the global average [3]. What is worrisome is that patients below **60 years of age** have heart failure.
 
             #### Q3: What is the gender proportion of heart failure patients?
-            **A3:** Based on the results, **65%** are male, and **35%** are female. This shows that heart failure is more common among males. In scientific literature, it shows that females with heart failure survive longer than their male counterparts and have a lower risk of death. This is an interesting aspect to explore in the dataset.
+            **A3:** Based on the results, **65%** are male, and **35%** are female. This shows that heart failure is more common among males. In scientific literature, it shows that females with heart failure survive longer than their male counterparts and have a **lower** risk of death [4]. This is an interesting aspect to explore in the dataset.
             """
             )
 
@@ -922,16 +930,16 @@ def basic_feature_relationships(df):
         "Q2": {
             "question": "Why Can Patients with High Serum Creatinine Levels Have Worse Outcomes Even If Their Ejection Fraction Is Normal?",
             "answer": """
-            High serum creatinine is a significant biomarker for heart failure, as kidney dysfunction is common among these patients [28]. It is associated with an increased risk of mortality. However, a pertinent question arises: why are patients with normal ejection fractions but high serum creatinine levels at risk of death? 
+            High serum creatinine is a significant biomarker for heart failure, as kidney dysfunction is common among these patients [8]. It is associated with an increased risk of mortality. However, a pertinent question arises: why are patients with normal ejection fractions but high serum creatinine levels at risk of death? 
 
             To explore this, we first need to establish the normal ranges for serum creatinine and ejection fraction:
             
             - **Normal Serum Creatinine Levels:**
-                - Men: **0.74 to 1.35 mg/dL** [26]
+                - Men: **0.74 to 1.35 mg/dL** [9]
                 - Women: **0.59 to 1.04 mg/dL**
             
             - **Normal Ejection Fraction:** 
-                - An ejection fraction of over **50%** is considered normal for both sexes [27].
+                - An ejection fraction of over **50%** is considered normal for both sexes [10].
 
             Based on the analysis of this subpopulation, the main findings are as follows:
 
@@ -1113,7 +1121,7 @@ def show_correlation(df):
 
                 Time is also a significant factor, but its interpretation depends on the context of the patient's care.
 
-                In scientific literature, higher serum creatinine, lower ejection fraction, and lower serum sodium (hyponatremia) are linked to an increased risk of mortality, validating the correlations found in this dataset [23-25].
+                In scientific literature, higher serum creatinine, lower ejection fraction, and lower serum sodium (hyponatremia) are linked to an increased risk of mortality, validating the correlations found in this dataset [5-7].
 
                 It's noteworthy that smoking, diabetes, anemia, and high blood pressure did not show strong correlations to mortality in this dataset. This suggests that these features alone are not sufficient to determine the mortality risk for patients.
                 """
@@ -1274,7 +1282,7 @@ def show_model_performance(df):
             return
 
         sorted_indices = np.argsort(feature_importances)[::-1]
-        sorted_feature_names = [selected_features[i] for i in sorted_indices]
+        sorted_feature_names = [all_features[i] for i in sorted_indices]
         
         left_column, right_column = st.columns(2)
         with left_column:
