@@ -8,6 +8,7 @@ import plotly.express as px
 from PIL import Image
 import plotly.graph_objects as go
 import warnings
+from sklearn.cluster import KMeans
 warnings.filterwarnings('ignore')
 
 # Streamlit page configuration
