@@ -280,10 +280,10 @@ def show_input_data():
         show_contact_us()
     elif option == "Predictive analytics":
         with st.sidebar:
-            sub_option = st.radio("Choose an action:", ["Input your data", "Show model performance"])
+            sub_option = st.radio("Choose an action:", ["Input your data", "Model performance (SHAP)"])
         if sub_option == "Input your data":
             upload_pre_model()
-        elif sub_option == "Show model performance":
+        elif sub_option == "Model performance (SHAP)":
             show_model_performance(df)
     elif option == "Home":
         show_home()
@@ -382,7 +382,7 @@ def upload_pre_model():
         st.session_state["time"] = time
         
         prediction = None
-        model = joblib.load('D:\KI\project management_SU\PROHI-dashboard-class-exercise\logistic_regression_model.pkl')
+        model = joblib.load('Web medical dashboard/xgb3_model.pkl')
         # Check if the loaded model is indeed a valid model
         if hasattr(model, 'predict'):
             # Prepare input data for the model
@@ -436,7 +436,7 @@ def upload_pre_model():
                     color: #2c3e50;
                     padding-bottom: 10px;
                 ">
-                    Model: {model}
+                    Model: {"XGBClassifier"}
                 </h2>
                 <hr style="
                     border: 0;
@@ -1147,6 +1147,7 @@ import pickle
 import joblib
 import shap
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 def show_model_performance(df):
     
@@ -1157,15 +1158,16 @@ def show_model_performance(df):
     X = df[all_features] 
     y = df["DEATH_EVENT"]
 
-    # Load your pre-trained model from a specified path
-    model_path = 'assets/logistic_regression_model.pkl'  # Update the path as needed
-    model = joblib.load(model_path)  # Load the model
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)  # Apply standardization
 
-    # Assuming X_scaled is already defined elsewhere in your code
-    # Make predictions
-    predictions = model.predict(X)
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.30, random_state=25)
+    model = joblib.load("Web medical dashboard/xgb3_model.pkl")  # Load the model
+    model.fit(X_train, y_train)
+  
+    predictions = model.predict(X_test)
     predictions_df = pd.DataFrame(predictions, columns=['Predictions'])
-        
+
     df = pd.concat([df.reset_index(drop=True), predictions_df], axis=1)
 
     # User selection for evaluation or SHAP
@@ -1178,14 +1180,14 @@ def show_model_performance(df):
         st.subheader("Model Performance")
         
         # Calculate accuracy
-        accuracy = accuracy_score(y, predictions)
+        accuracy = accuracy_score(y_test, predictions)
         st.write(f"**Accuracy:** {accuracy:.4f}")
     
         left_column,right_column = st.columns(2)
         with right_column:
             # Classification Report
             
-            report = classification_report(y, predictions, output_dict=True)
+            report = classification_report(y_test, predictions, output_dict=True)
             report_df = pd.DataFrame(report).transpose()
             st.write("### Classification Report")
             st.markdown("")
@@ -1207,8 +1209,7 @@ def show_model_performance(df):
 
         with left_column:
             # Confusion Matrix
-            
-            conf_matrix = confusion_matrix(y, predictions)
+            conf_matrix = confusion_matrix(y_test, predictions)
             fig = px.imshow(
                 conf_matrix, 
                 text_auto=True, 
@@ -1245,46 +1246,16 @@ def show_model_performance(df):
 
     elif analysis_option == "SHAP Analysis":
         st.header("SHAP Analysis")
-        
-        X_scaled_np = np.array(X)
-        y_np = y.values
-        X_sample = shap.sample(X_scaled_np, 50)
-        class_labels = np.unique(y_np)
 
-        positive_class_index = np.where(class_labels == 1)[0]
-        if len(positive_class_index) == 0:
-            st.error("There is no positive labels.")
-            return
-        else:
-            positive_class_index = positive_class_index[0]
-
-        # SHAP explainer and shap_values determination
-        if model.__class__.__name__ in ["RandomForestClassifier", "DecisionTreeClassifier"]:
-            explainer = shap.TreeExplainer(model)
-            shap_values = explainer.shap_values(X_scaled_np)
-
-            if isinstance(shap_values, list):
-                shap_values = shap_values[positive_class_index]
-
-        elif model.__class__.__name__ == "LogisticRegression":
-            explainer = shap.LinearExplainer(model, X_sample)
-            shap_values = explainer.shap_values(X_scaled_np)
-
-        else:
-            explainer = shap.KernelExplainer(model.predict_proba, X_sample)
-            shap_values = explainer.shap_values(X_scaled_np)
-
-        if shap_values.ndim == 3:
-            shap_values = shap_values[:, :, positive_class_index]
-        elif shap_values.ndim == 1:
-            shap_values = shap_values.reshape(-1, 1)
+        # Initialize SHAP TreeExplainer for tree-based models (e.g., XGBClassifier, RandomForestClassifier, etc.)
+        explainer = shap.TreeExplainer(model,X_train)
+        shap_values = explainer.shap_values(X_test)
 
         if shap_values.ndim == 2:
             feature_importances = np.abs(shap_values).mean(axis=0)
         else:
-            st.error("SHAP values should be 2D.")
-            return
-
+            raise ValueError("SHAP values should be 2D for this classification model.")
+        
         sorted_indices = np.argsort(feature_importances)[::-1]
         sorted_feature_names = [all_features[i] for i in sorted_indices]
         
@@ -1294,7 +1265,7 @@ def show_model_performance(df):
             st.subheader("Summary Plot")
             st.markdown("")
             st.markdown("")
-            shap.summary_plot(shap_values, X_scaled_np, feature_names=sorted_feature_names)
+            shap.summary_plot(shap_values, X_test, feature_names=sorted_feature_names)
             st.pyplot(plt)
         
         with right_column:
