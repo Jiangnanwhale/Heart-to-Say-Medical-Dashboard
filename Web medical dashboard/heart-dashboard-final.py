@@ -1170,7 +1170,7 @@ def show_model_performance(df):
     # User selection for evaluation or SHAP
     analysis_option = st.sidebar.selectbox(
         "Select Analysis Type:",
-        ("View Predictions", "Model Performance", "SHAP Analysis")
+        ("Model Performance", "SHAP Analysis")
     )
 
     if analysis_option == "Model Performance":
@@ -1346,123 +1346,6 @@ def show_model_performance(df):
             This transparency is critical for clinical applications, where understanding the underlying reasons for predictions 
             can guide effective interventions and improve patient outcomes.
         """)
-        st.markdown("<br>"*3, unsafe_allow_html=True)
-
-    elif analysis_option == "View Predictions":
-
-        st.subheader("Data with Predictions")
-        st.dataframe(df)  
-        # Ensure patient index is within the valid range
-        max_index = len(df) - 1
-        patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
-
-        if 0 <= patient_index <= max_index:
-            # Extract prediction for the selected patient index
-            pred = df.loc[patient_index, 'Predictions']
-            
-            # Generate recommendation based on the prediction
-            if pred == 1:
-                recommendation = "Patient is at high risk of death. Immediate intervention is advised."
-            else:
-                recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
-
-            # Display Patient Information
-            st.markdown(f"""
-            <div style="
-                background-color: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                padding: 20px;
-                margin-bottom: 20px;
-                color: #333;
-                border: 1px solid #ddd;
-                max-width: 900px;
-            ">   
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 10px;
-                ">
-                    <h2 style="
-                        margin: 0;
-                        font-size: 22px;
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
-                        padding-bottom: 15px;
-                        flex: 1;
-                    ">
-                        Patient Index:{patient_index}
-                    </h2>
-                    <h2 style="
-                        margin: 0;
-                        font-size: 22px;
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
-                        padding-bottom: 15px;
-                        flex: 1;
-                        text-align: right;
-                    ">
-                        Model: {model}
-                    </h2>
-                </div>
-                <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
-                    font-weight: bold;
-                ">
-                    Prediction: 
-                    <span style="
-                        font-weight: bold;
-                        color: {'#e74c3c' if pred == 1 else '#27ae60'};
-                    ">
-                        {'High Risk' if pred == 1 else 'Low Risk'}
-                    </span>
-                </p>
-                <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
-                    font-weight: bold;
-                ">
-                    Recommendation: 
-                    <span style="
-                        color: #2980b9;
-                        background-color: #ecf0f1;
-                        border-radius: 5px;
-                        padding: 5px 10px;
-                    ">
-                        {recommendation}
-                    </span>
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.write("""
-        In this section, you can view the model's predictions for individual patients. By selecting a patient index, 
-        you can see whether the model has classified the patient as high or low risk based on the available data.
-        
-        **High Risk Prediction**: The model predicts that the patient is at high risk, suggesting that immediate intervention may be necessary.
-        
-        **Low Risk Prediction**: The model predicts a low risk for the patient, implying that regular monitoring should suffice for now.
-        
-        This tool is useful for identifying and understanding individual predictions and how the model assesses risk. Additionally, based on the prediction, a recommendation is generated to guide further actions for the patient.
-            """)
-        
-        # Create an Excel file with patient data and recommendations
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, sheet_name='Patient Data', index=False)
-            # Write recommendations in a separate sheet
-            recommendations_df = pd.DataFrame({
-                'Patient Index': [patient_index],
-                'Prediction': [pred],
-                'Recommendation': [recommendation]
-            })
-            recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
-        st.download_button(label="Download Patient Data and Predictions as Excel",
-                            data=output.getvalue(),
-                            file_name=f"{model}_patient_data_and_predictions.xlsx",
-                            mime="application/vnd.ms-excel")
         st.markdown("<br>"*3, unsafe_allow_html=True)
 
 
