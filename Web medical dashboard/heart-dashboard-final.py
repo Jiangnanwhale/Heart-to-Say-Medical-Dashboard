@@ -1170,7 +1170,7 @@ def show_model_performance(df):
     # User selection for evaluation or SHAP
     analysis_option = st.sidebar.selectbox(
         "Select Analysis Type:",
-        ("Model Performance", "SHAP Analysis")
+        ( "SHAP Analysis","Model Performance")
     )
 
     if analysis_option == "Model Performance":
@@ -1347,7 +1347,6 @@ def show_model_performance(df):
             can guide effective interventions and improve patient outcomes.
         """)
         st.markdown("<br>"*3, unsafe_allow_html=True)
-
 
 if __name__ == "__main__":
     show_dashboard()
