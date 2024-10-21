@@ -567,9 +567,8 @@ def show_data_overview(df):
     total_records = len(df)
     positive_cases = df['DEATH_EVENT'].value_counts().get(1, 0)
     negative_cases = df['DEATH_EVENT'].value_counts().get(0, 0)
-    missing_values = df.isnull().sum().sum()
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     card_style = """
         <div style="background-color: {bg_color}; padding: 20px; border-radius: 10px; text-align: center; color: white; height: 300px; margin: 10px; display: flex; flex-direction: column; justify-content: center;">
@@ -590,10 +589,6 @@ def show_data_overview(df):
     with col3:
         st.markdown(card_style.format(bg_color="#3498db", title="Negative Cases", value=negative_cases,
                                     description="Number of patients who did not experience a death event (0)."), unsafe_allow_html=True)
-
-    with col4:
-        st.markdown(card_style.format(bg_color="#9b59b6", title="Missing Values", value=missing_values,
-                                    description="This indicates how many data entries are missing across all features."), unsafe_allow_html=True)
     
     st.markdown("")
     st.markdown("")
@@ -620,8 +615,9 @@ def show_data_overview(df):
         with left_column:
 
             st.write("### Distribution of Categorical Features")
-        
+    
             st.write("Select a Categorical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
+            
             selected_column = st.selectbox("Select a feature to visualize", categorical_features)
             if 'DEATH_EVENT' in categorical_features:
                 categorical_features.remove('DEATH_EVENT')
@@ -640,7 +636,14 @@ def show_data_overview(df):
                                         marker=dict(line=dict(color='white', width=4))
             )           
             st.plotly_chart(fig_feature_1, use_container_width=True)
+            
+            selected_counts = df[selected_column].value_counts()
+            selected_column_percentage = round((selected_counts.get(1, 0) / len(df)) * 100)  # dead
+            opposite_percentage = round((selected_counts.get(0, 0) / len(df)) * 100) 
 
+            conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category. " 
+            st.write(conclusion_text)
+            
             fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
                         color_discrete_map={0: '#3498db', 1: '#e74c3c'},
                         title=f'Distribution of {selected_column} vs Death Event' )
@@ -666,22 +669,19 @@ def show_data_overview(df):
                                         title=f'Distribution of {selected_column} vs Death Event')
             
             st.plotly_chart(fig_feature_1, use_container_width=True)
-            st.plotly_chart(fig_feature_2, use_container_width=True)
+            
+            min_value = round(df[selected_column].min())
+            max_value = round(df[selected_column].max())
+            average_value = round(df[selected_column].mean())
 
-        st.write(
-            """
-            ### Q&A Section
-
-            #### Q1: What proportion of heart failure patients died compared to those who survived in the dataset?
-            **A1:** Based on the pie chart, the dataset has almost **68%** of heart failure patients still alive, while **32%** are dead before the follow-up period. Good news for the target users; however, it may lead to difficulty in prediction modeling.
-
-            #### Q2: How does the age distribution vary, and which age group has the highest number of heart failure patients in the dataset?
-            **A2:** Based on the results, heart failure patients range from **40 to 95 years old**, with an **average age of 61 years**. This is close to the global average [3]. What is worrisome is that patients below **60 years of age** have heart failure.
-
-            #### Q3: What is the gender proportion of heart failure patients?
-            **A3:** Based on the results, **65%** are male, and **35%** are female. This shows that heart failure is more common among males. In scientific literature, it shows that females with heart failure survive longer than their male counterparts and have a **lower** risk of death [4]. This is an interesting aspect to explore in the dataset.
-            """
+            conclusion_text = (
+                f"Based on the results, heart failure patients range from {min_value} to {max_value} for the feature '{selected_column}', "
+                f"with an average value of {average_value}."
             )
+
+            st.write(conclusion_text)
+            
+            st.plotly_chart(fig_feature_2, use_container_width=True)
 
     elif condition_filter == "Bivariate or Multivariate Analysis":
         
@@ -1127,8 +1127,9 @@ def show_correlation(df):
                 In scientific literature, higher serum creatinine, lower ejection fraction, and lower serum sodium (hyponatremia) are linked to an increased risk of mortality, validating the correlations found in this dataset [5-7].
 
                 It's noteworthy that smoking, diabetes, anemia, and high blood pressure did not show strong correlations to mortality in this dataset. This suggests that these features alone are not sufficient to determine the mortality risk for patients.
+                
                 """
-            )
+                 )
 
         
     else:
