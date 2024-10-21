@@ -6,6 +6,7 @@ import plotly.express as px
 from PIL import Image
 import plotly.graph_objects as go
 import warnings
+from sklearn.cluster import KMeans
 warnings.filterwarnings('ignore')
 
 
@@ -269,7 +270,7 @@ def show_input_data():
         st.subheader(":guide_dog: Navigation")
         option = st.radio("Select an option:", ["Home","Descriptive analytics", "Diagnostic analytics","Predictive analytics", "Contact Us"])
     
-    df = pd.read_csv("d:/KI/project management_SU/PROHI-dashboard-class-exercise/heart_failure_clinical_records_dataset.csv")
+    df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     if option == "Descriptive analytics":
         show_data_overview(df)
     elif option == "Diagnostic analytics":
