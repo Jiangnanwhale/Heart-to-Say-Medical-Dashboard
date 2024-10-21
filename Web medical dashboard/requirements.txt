@@ -4,3 +4,4 @@ numpy
 plotly
 pillow
 scikit-learn
+XlsxWriter
