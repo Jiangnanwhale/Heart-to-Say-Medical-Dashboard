@@ -1,3 +1,5 @@
+## "pip install -r requirements.txt" in terminal first##
+
 import streamlit as st
 import io
 import pandas as pd
@@ -8,7 +10,6 @@ import plotly.graph_objects as go
 import warnings
 from sklearn.cluster import KMeans
 warnings.filterwarnings('ignore')
-
 
 # Streamlit page configuration
 st.set_page_config(page_title="Heart to Say", 
