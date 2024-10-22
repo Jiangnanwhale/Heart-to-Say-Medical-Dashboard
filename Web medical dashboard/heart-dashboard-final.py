@@ -216,7 +216,7 @@ def show_contact_us():
     - Ifani Pinto Nada  
     - Mahmoud Elachi  
     - Nan Jiang  
-    - Sahid Hasan Rahimm  
+    - Sahid Hasan Rahim  
     - Zhao Chen  
     
       
