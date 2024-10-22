@@ -1248,8 +1248,8 @@ def show_model_performance(df):
         st.header("SHAP Analysis")
 
         # Initialize SHAP TreeExplainer for tree-based models (e.g., XGBClassifier, RandomForestClassifier, etc.)
-        explainer = shap.TreeExplainer(model,X_train)
-        shap_values = explainer.shap_values(X_test)
+        explainer = shap.Explainer(model, X_scaled)
+        shap_values = explainer(X_scaled)
 
         if shap_values.ndim == 2:
             feature_importances = np.abs(shap_values).mean(axis=0)
@@ -1265,7 +1265,7 @@ def show_model_performance(df):
             st.subheader("Summary Plot")
             st.markdown("")
             st.markdown("")
-            shap.summary_plot(shap_values, X_test, feature_names=sorted_feature_names)
+            shap.summary_plot(shap_values, X_scaled)
             st.pyplot(plt)
         
         with right_column:
