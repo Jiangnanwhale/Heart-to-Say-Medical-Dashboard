@@ -272,7 +272,7 @@ def show_input_data():
         st.subheader(":guide_dog: Navigation")
         option = st.radio("Select an option:", ["Home","Descriptive analytics", "Diagnostic analytics","Predictive analytics", "Contact Us"])
     
-    df = pd.read_csv("Web medical dashboards/heart_failure_clinical_records_dataset.csv")
+    df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     if option == "Descriptive analytics":
         show_data_overview(df)
     elif option == "Diagnostic analytics":
