@@ -6,3 +6,5 @@ pillow
 scikit-learn
 XlsxWriter
 xgboost
+shap
+seaborn
