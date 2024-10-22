@@ -11,6 +11,7 @@ import warnings
 from sklearn.cluster import KMeans
 warnings.filterwarnings('ignore')
 
+
 # Streamlit page configuration
 st.set_page_config(page_title="Heart to Say", 
                    page_icon=":heartbeat:",
@@ -215,7 +216,7 @@ def show_contact_us():
     - Ifani Pinto Nada  
     - Mahmoud Elachi  
     - Nan Jiang  
-    - Sahid Hasan Rahim
+    - Sahid Hasan Rahimm  
     - Zhao Chen  
     
       
@@ -271,7 +272,7 @@ def show_input_data():
         st.subheader(":guide_dog: Navigation")
         option = st.radio("Select an option:", ["Home","Descriptive analytics", "Diagnostic analytics","Predictive analytics", "Contact Us"])
     
-    df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
+    df = pd.read_csv("Web medical dashboards/heart_failure_clinical_records_dataset.csv")
     if option == "Descriptive analytics":
         show_data_overview(df)
     elif option == "Diagnostic analytics":
@@ -280,10 +281,10 @@ def show_input_data():
         show_contact_us()
     elif option == "Predictive analytics":
         with st.sidebar:
-            sub_option = st.radio("Choose an action:", ["Input your data", "Model performance (SHAP)"])
+            sub_option = st.radio("Choose an action:", ["Input your data", "Show model performance"])
         if sub_option == "Input your data":
             upload_pre_model()
-        elif sub_option == "Model performance (SHAP)":
+        elif sub_option == "Show model performance":
             show_model_performance(df)
     elif option == "Home":
         show_home()
@@ -382,7 +383,7 @@ def upload_pre_model():
         st.session_state["time"] = time
         
         prediction = None
-        model = joblib.load('Web medical dashboard/xgb3_model.pkl')
+        model = joblib.load('D:\KI\project management_SU\PROHI-dashboard-class-exercise\logistic_regression_model.pkl')
         # Check if the loaded model is indeed a valid model
         if hasattr(model, 'predict'):
             # Prepare input data for the model
@@ -436,7 +437,7 @@ def upload_pre_model():
                     color: #2c3e50;
                     padding-bottom: 10px;
                 ">
-                    Model: {"XGBClassifier"}
+                    Model: {model}
                 </h2>
                 <hr style="
                     border: 0;
@@ -567,8 +568,9 @@ def show_data_overview(df):
     total_records = len(df)
     positive_cases = df['DEATH_EVENT'].value_counts().get(1, 0)
     negative_cases = df['DEATH_EVENT'].value_counts().get(0, 0)
+    missing_values = df.isnull().sum().sum()
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
     card_style = """
         <div style="background-color: {bg_color}; padding: 20px; border-radius: 10px; text-align: center; color: white; height: 300px; margin: 10px; display: flex; flex-direction: column; justify-content: center;">
@@ -589,6 +591,10 @@ def show_data_overview(df):
     with col3:
         st.markdown(card_style.format(bg_color="#3498db", title="Negative Cases", value=negative_cases,
                                     description="Number of patients who did not experience a death event (0)."), unsafe_allow_html=True)
+
+    with col4:
+        st.markdown(card_style.format(bg_color="#9b59b6", title="Missing Values", value=missing_values,
+                                    description="This indicates how many data entries are missing across all features."), unsafe_allow_html=True)
     
     st.markdown("")
     st.markdown("")
@@ -615,9 +621,8 @@ def show_data_overview(df):
         with left_column:
 
             st.write("### Distribution of Categorical Features")
-    
+        
             st.write("Select a Categorical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
-            
             selected_column = st.selectbox("Select a feature to visualize", categorical_features)
             if 'DEATH_EVENT' in categorical_features:
                 categorical_features.remove('DEATH_EVENT')
@@ -636,14 +641,7 @@ def show_data_overview(df):
                                         marker=dict(line=dict(color='white', width=4))
             )           
             st.plotly_chart(fig_feature_1, use_container_width=True)
-            
-            selected_counts = df[selected_column].value_counts()
-            selected_column_percentage = round((selected_counts.get(1, 0) / len(df)) * 100)  # dead
-            opposite_percentage = round((selected_counts.get(0, 0) / len(df)) * 100) 
 
-            conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category. " 
-            st.write(conclusion_text)
-            
             fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
                         color_discrete_map={0: '#3498db', 1: '#e74c3c'},
                         title=f'Distribution of {selected_column} vs Death Event' )
@@ -669,19 +667,22 @@ def show_data_overview(df):
                                         title=f'Distribution of {selected_column} vs Death Event')
             
             st.plotly_chart(fig_feature_1, use_container_width=True)
-            
-            min_value = round(df[selected_column].min())
-            max_value = round(df[selected_column].max())
-            average_value = round(df[selected_column].mean())
-
-            conclusion_text = (
-                f"Based on the results, heart failure patients range from {min_value} to {max_value} for the feature '{selected_column}', "
-                f"with an average value of {average_value}."
-            )
-
-            st.write(conclusion_text)
-            
             st.plotly_chart(fig_feature_2, use_container_width=True)
+
+        st.write(
+            """
+            ### Q&A Section
+
+            #### Q1: What proportion of heart failure patients died compared to those who survived in the dataset?
+            **A1:** Based on the pie chart, the dataset has almost **68%** of heart failure patients still alive, while **32%** are dead before the follow-up period. Good news for the target users; however, it may lead to difficulty in prediction modeling.
+
+            #### Q2: How does the age distribution vary, and which age group has the highest number of heart failure patients in the dataset?
+            **A2:** Based on the results, heart failure patients range from **40 to 95 years old**, with an **average age of 61 years**. This is close to the global average [3]. What is worrisome is that patients below **60 years of age** have heart failure.
+
+            #### Q3: What is the gender proportion of heart failure patients?
+            **A3:** Based on the results, **65%** are male, and **35%** are female. This shows that heart failure is more common among males. In scientific literature, it shows that females with heart failure survive longer than their male counterparts and have a **lower** risk of death [4]. This is an interesting aspect to explore in the dataset.
+            """
+            )
 
     elif condition_filter == "Bivariate or Multivariate Analysis":
         
@@ -1127,9 +1128,8 @@ def show_correlation(df):
                 In scientific literature, higher serum creatinine, lower ejection fraction, and lower serum sodium (hyponatremia) are linked to an increased risk of mortality, validating the correlations found in this dataset [5-7].
 
                 It's noteworthy that smoking, diabetes, anemia, and high blood pressure did not show strong correlations to mortality in this dataset. This suggests that these features alone are not sufficient to determine the mortality risk for patients.
-                
                 """
-                 )
+            )
 
         
     else:
@@ -1147,7 +1147,6 @@ import pickle
 import joblib
 import shap
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 
 def show_model_performance(df):
     
@@ -1158,36 +1157,35 @@ def show_model_performance(df):
     X = df[all_features] 
     y = df["DEATH_EVENT"]
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)  # Apply standardization
+    # Load your pre-trained model from a specified path
+    model_path = 'assets/logistic_regression_model.pkl'  # Update the path as needed
+    model = joblib.load(model_path)  # Load the model
 
-    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, stratify = y, test_size=0.30, random_state=25)
-    model = joblib.load("Web medical dashboard/xgb3_model.pkl")  # Load the model
-    model.fit(X_train, y_train)
-  
-    predictions = model.predict(X_test)
+    # Assuming X_scaled is already defined elsewhere in your code
+    # Make predictions
+    predictions = model.predict(X)
     predictions_df = pd.DataFrame(predictions, columns=['Predictions'])
-
+        
     df = pd.concat([df.reset_index(drop=True), predictions_df], axis=1)
 
     # User selection for evaluation or SHAP
     analysis_option = st.sidebar.selectbox(
         "Select Analysis Type:",
-        ( "SHAP Analysis","Model Performance")
+        ("View Predictions", "Model Performance", "SHAP Analysis")
     )
 
     if analysis_option == "Model Performance":
         st.subheader("Model Performance")
         
         # Calculate accuracy
-        accuracy = accuracy_score(y_test, predictions)
+        accuracy = accuracy_score(y, predictions)
         st.write(f"**Accuracy:** {accuracy:.4f}")
     
         left_column,right_column = st.columns(2)
         with right_column:
             # Classification Report
             
-            report = classification_report(y_test, predictions, output_dict=True)
+            report = classification_report(y, predictions, output_dict=True)
             report_df = pd.DataFrame(report).transpose()
             st.write("### Classification Report")
             st.markdown("")
@@ -1209,7 +1207,8 @@ def show_model_performance(df):
 
         with left_column:
             # Confusion Matrix
-            conf_matrix = confusion_matrix(y_test, predictions)
+            
+            conf_matrix = confusion_matrix(y, predictions)
             fig = px.imshow(
                 conf_matrix, 
                 text_auto=True, 
@@ -1246,16 +1245,46 @@ def show_model_performance(df):
 
     elif analysis_option == "SHAP Analysis":
         st.header("SHAP Analysis")
+        
+        X_scaled_np = np.array(X)
+        y_np = y.values
+        X_sample = shap.sample(X_scaled_np, 50)
+        class_labels = np.unique(y_np)
 
-        # Initialize SHAP TreeExplainer for tree-based models (e.g., XGBClassifier, RandomForestClassifier, etc.)
-        explainer = shap.TreeExplainer(model,X_train)
-        shap_values = explainer.shap_values(X_test)
+        positive_class_index = np.where(class_labels == 1)[0]
+        if len(positive_class_index) == 0:
+            st.error("There is no positive labels.")
+            return
+        else:
+            positive_class_index = positive_class_index[0]
+
+        # SHAP explainer and shap_values determination
+        if model.__class__.__name__ in ["RandomForestClassifier", "DecisionTreeClassifier"]:
+            explainer = shap.TreeExplainer(model)
+            shap_values = explainer.shap_values(X_scaled_np)
+
+            if isinstance(shap_values, list):
+                shap_values = shap_values[positive_class_index]
+
+        elif model.__class__.__name__ == "LogisticRegression":
+            explainer = shap.LinearExplainer(model, X_sample)
+            shap_values = explainer.shap_values(X_scaled_np)
+
+        else:
+            explainer = shap.KernelExplainer(model.predict_proba, X_sample)
+            shap_values = explainer.shap_values(X_scaled_np)
+
+        if shap_values.ndim == 3:
+            shap_values = shap_values[:, :, positive_class_index]
+        elif shap_values.ndim == 1:
+            shap_values = shap_values.reshape(-1, 1)
 
         if shap_values.ndim == 2:
             feature_importances = np.abs(shap_values).mean(axis=0)
         else:
-            raise ValueError("SHAP values should be 2D for this classification model.")
-        
+            st.error("SHAP values should be 2D.")
+            return
+
         sorted_indices = np.argsort(feature_importances)[::-1]
         sorted_feature_names = [all_features[i] for i in sorted_indices]
         
@@ -1265,7 +1294,7 @@ def show_model_performance(df):
             st.subheader("Summary Plot")
             st.markdown("")
             st.markdown("")
-            shap.summary_plot(shap_values, X_test, feature_names=sorted_feature_names)
+            shap.summary_plot(shap_values, X_scaled_np, feature_names=sorted_feature_names)
             st.pyplot(plt)
         
         with right_column:
@@ -1319,6 +1348,124 @@ def show_model_performance(df):
             can guide effective interventions and improve patient outcomes.
         """)
         st.markdown("<br>"*3, unsafe_allow_html=True)
+
+    elif analysis_option == "View Predictions":
+
+        st.subheader("Data with Predictions")
+        st.dataframe(df)  
+        # Ensure patient index is within the valid range
+        max_index = len(df) - 1
+        patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
+
+        if 0 <= patient_index <= max_index:
+            # Extract prediction for the selected patient index
+            pred = df.loc[patient_index, 'Predictions']
+            
+            # Generate recommendation based on the prediction
+            if pred == 1:
+                recommendation = "Patient is at high risk of death. Immediate intervention is advised."
+            else:
+                recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
+
+            # Display Patient Information
+            st.markdown(f"""
+            <div style="
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                margin-bottom: 20px;
+                color: #333;
+                border: 1px solid #ddd;
+                max-width: 900px;
+            ">   
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 10px;
+                ">
+                    <h2 style="
+                        margin: 0;
+                        font-size: 22px;
+                        color: #2c3e50;
+                        border-bottom: 2px solid #3498db;
+                        padding-bottom: 15px;
+                        flex: 1;
+                    ">
+                        Patient Index:{patient_index}
+                    </h2>
+                    <h2 style="
+                        margin: 0;
+                        font-size: 22px;
+                        color: #2c3e50;
+                        border-bottom: 2px solid #3498db;
+                        padding-bottom: 15px;
+                        flex: 1;
+                        text-align: right;
+                    ">
+                        Model: {model}
+                    </h2>
+                </div>
+                <p style="
+                    font-size: 20px;
+                    margin: 10px 0;
+                    font-weight: bold;
+                ">
+                    Prediction: 
+                    <span style="
+                        font-weight: bold;
+                        color: {'#e74c3c' if pred == 1 else '#27ae60'};
+                    ">
+                        {'High Risk' if pred == 1 else 'Low Risk'}
+                    </span>
+                </p>
+                <p style="
+                    font-size: 20px;
+                    margin: 10px 0;
+                    font-weight: bold;
+                ">
+                    Recommendation: 
+                    <span style="
+                        color: #2980b9;
+                        background-color: #ecf0f1;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                    ">
+                        {recommendation}
+                    </span>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.write("""
+        In this section, you can view the model's predictions for individual patients. By selecting a patient index, 
+        you can see whether the model has classified the patient as high or low risk based on the available data.
+        
+        **High Risk Prediction**: The model predicts that the patient is at high risk, suggesting that immediate intervention may be necessary.
+        
+        **Low Risk Prediction**: The model predicts a low risk for the patient, implying that regular monitoring should suffice for now.
+        
+        This tool is useful for identifying and understanding individual predictions and how the model assesses risk. Additionally, based on the prediction, a recommendation is generated to guide further actions for the patient.
+            """)
+        
+        # Create an Excel file with patient data and recommendations
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, sheet_name='Patient Data', index=False)
+            # Write recommendations in a separate sheet
+            recommendations_df = pd.DataFrame({
+                'Patient Index': [patient_index],
+                'Prediction': [pred],
+                'Recommendation': [recommendation]
+            })
+            recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
+        st.download_button(label="Download Patient Data and Predictions as Excel",
+                            data=output.getvalue(),
+                            file_name=f"{model}_patient_data_and_predictions.xlsx",
+                            mime="application/vnd.ms-excel")
+        st.markdown("<br>"*3, unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     show_dashboard()
