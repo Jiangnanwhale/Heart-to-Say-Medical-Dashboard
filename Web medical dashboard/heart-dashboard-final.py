@@ -1161,7 +1161,7 @@ def show_model_performance(df):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)  # Apply standardization
 
-    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.30, random_state=25)
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, stratify = y, test_size=0.30, random_state=25)
     model = joblib.load("Web medical dashboard/xgb3_model.pkl")  # Load the model
     model.fit(X_train, y_train)
   
