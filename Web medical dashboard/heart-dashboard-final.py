@@ -273,8 +273,15 @@ def show_input_data():
         option = st.radio("Select an option:", ["Home","Overview of Patients", "Factors Correlation","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
-    df.rename(columns={'time': 'follow-up days'}, inplace=True)
-
+    df.rename(columns={ 'time': 'follow-up days',
+                        "DEATH_EVENT": "mortality",
+                        "creatinine_phosphokinase": "creatinine phosphokinase",
+                        "ejection_fraction": "ejection fraction",
+                        "serum_creatinine": "serum creatinine",
+                        "serum_sodium": "serum sodium",
+                        "high_blood_pressure": "hypertension"
+                        }, inplace=True)
+                        
     if option == "Overview of Patients":
         show_data_overview(df)
     elif option == "Factors Correlation":
@@ -364,9 +371,7 @@ def upload_pre_model():
             creatinine_phosphokinase = st.number_input("**Creatinine Phosphokinase (mcg/L)**", min_value=0.0, format="%.2f", value=st.session_state.get("creatinine_phosphokinase", 0.0))
             platelets = st.number_input("**Platelets (kiloplatelets/mL)**", min_value=0, value=st.session_state.get("platelets", 0))
             
-           
-
-        # Submit button for the form
+    
         submit_button = st.form_submit_button("Calculate Prediction")
     
     scaler = StandardScaler()
@@ -415,13 +420,6 @@ def upload_pre_model():
             input_data_scaled = scaler.transform(input_data)
             
             prediction = model.predict(input_data_scaled)
-    
-            if prediction is not None and len(prediction) > 0:
-                recommendation = (
-                    "Patient is at high risk of death. Immediate intervention is advised."
-                    if prediction[0] == 1
-                    else "Patient is at low risk of death. Regular monitoring is recommended."
-                )
   
             st.markdown(f"""
             <div style="
@@ -545,12 +543,12 @@ import streamlit as st
 import pandas as pd
 
 def show_data_overview(df):
-    st.title("Descriptive analytics")
+    st.title("Overview of Patients")
     
     # Dataset basic info
     total_records = len(df)
-    positive_cases = df['DEATH_EVENT'].value_counts().get(1, 0)
-    negative_cases = df['DEATH_EVENT'].value_counts().get(0, 0)
+    positive_cases = df['mortality'].value_counts().get(1, 0)
+    negative_cases = df['mortality'].value_counts().get(0, 0)
 
     col1, col2, col3 = st.columns(3)
 
@@ -594,8 +592,8 @@ def show_data_overview(df):
     
         selected_column = st.selectbox("Select a binary feature to visualize (e.g., diabetes, anaemia, etc)", categorical_features,
                                        index=categorical_features.index('diabetes'))
-        if 'DEATH_EVENT' in categorical_features:
-            categorical_features.remove('DEATH_EVENT')
+        if 'mortality' in categorical_features:
+            categorical_features.remove('mortality')
     
         count_data = df[selected_column].value_counts().reset_index()
         count_data.columns = [selected_column, 'count']
@@ -631,7 +629,7 @@ def show_data_overview(df):
         conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category. " 
         st.write(conclusion_text)
 
-        fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
+        fig_feature_2 = px.histogram(df, x=selected_column, color='mortality', barmode='group',
                     color_discrete_map={0: '#808080', 1: '#ff0000'},
                     title=f'Distribution of {selected_column} vs Death Event' )
         fig_feature_2.for_each_trace(lambda t: t.update(name='Survived' if t.name == '0' else 'Death occured'))
@@ -640,15 +638,15 @@ def show_data_overview(df):
         with right_column:
 
             selected_column = st.selectbox("Select a continual feature to visualize (e.g., age, platelets, etc)", numerical_features)
-            if 'DEATH_EVENT' in numerical_features:
-                numerical_features.remove('DEATH_EVENT')
+            if 'mortality' in numerical_features:
+                numerical_features.remove('mortality')
 
             fig_feature_1 = px.histogram(df, x=selected_column, barmode='group',
                                     color_discrete_sequence=['#2ca02c'],
                                         title=f'Distribution of {selected_column}')
             fig_feature_1.update_layout(bargap=0.2)
             
-            fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
+            fig_feature_2 = px.histogram(df, x=selected_column, color='mortality', barmode='group',
                                         color_discrete_sequence=['#ff0000','#808080'],
                                         title=f'Distribution of {selected_column} vs Death Event')
             
@@ -679,21 +677,16 @@ import plotly.figure_factory as ff
 def show_correlation(df):
     st.subheader("Correlation Matrix")
     st.write("A correlation matrix shows how heart failure factors are related to each other in a simple table.")
-    df.rename(columns={
-                        "DEATH_EVENT": "mortality risk",
-                        "creatinine_phosphokinase": "creatinine phosphokinase",
-                        "ejection_fraction": "ejection fraction",
-                        "serum_creatinine": "serum creatinine",
-                        "serum_sodium": "serum sodium",
-                        "high_blood_pressure": "hypertension"
-                        }, inplace=True)
-
-    selected_features = df.columns.tolist()
-    st.markdown("")
-
-    target_variable = 'mortality risk'  
-    selected_features = [feature for feature in df.columns if feature != 'DEATH_EVENT']
     
+    st.markdown("")
+    df.rename(columns={"mortality": "mortality risk"}, inplace=True)
+    selected_features = df.columns.tolist()
+    selected_features = [feature for feature in df.columns if feature != 'mortality risk']
+    target_variable = 'mortality risk'  
+    
+    if target_variable not in selected_features:
+        selected_features.append(target_variable)
+
     col1, col2 = st.columns([1, 2])
     with col1:
         st.markdown(
@@ -821,11 +814,11 @@ from sklearn.model_selection import train_test_split
 def show_model_performance(df):
     
     all_features = df.columns.tolist()
-    all_features.remove("DEATH_EVENT")
+    all_features.remove("mortality")
 
     # Preparing data
     X = df[all_features] 
-    y = df["DEATH_EVENT"]
+    y = df["mortality"]
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)  # Apply standardization
 
