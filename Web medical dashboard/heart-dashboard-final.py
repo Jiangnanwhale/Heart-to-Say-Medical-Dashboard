@@ -270,14 +270,14 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Diagnostic analytics","Predictive analytics", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Heart Failures Factors Correlation","Predictive analytics", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={'time': 'follow-up days'}, inplace=True)
 
     if option == "Descriptive analytics":
         show_data_overview(df)
-    elif option == "Diagnostic analytics":
+    elif option == "Heart Failures Factors Correlation":
         show_eda(df)
     elif option == "Contact Us":
         show_contact_us()
@@ -687,242 +687,102 @@ def show_data_overview(df):
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
 def show_eda(df):
-    st.title("Diagnostic Analysis")
-    st.write("This section provides a brief overview of the dataset, including the total number of records and the features available.")
+    st.title("Heart Failures Factors Correlation")
     st.markdown("---")
-
-    # EDA 
-    eda_option = st.selectbox("Choose analysis option:", [ "Correlation Coefficient","Basic Feature Relationships"])
-
-    if eda_option == "Correlation Coefficient":
-        show_correlation(df)
-    elif eda_option == "Basic Feature Relationships":
-        basic_feature_relationships(df)
-
-def basic_feature_relationships(df):
-
-    col1, col2 = st.columns([4, 1])
-
-    with col1:
-
-        chart_type = st.radio("Select Chart Type:", ["Line Plot", "Box Plot","Scatter Plot"])
-        
-        if chart_type == "Line Plot":
-
-            left_column, right_column =st.columns(2)
-            with left_column:
-                x_axis = st.selectbox('Select X-axis feature:', df.columns.tolist())
-            with right_column:
-                y_axis = st.selectbox('Select Y-axis feature:', df.columns.tolist())
-            
-            st.write("### Line Plot Visualization")
-            st.write("A line plot will show the relationship between two (continuous) features. Please select the X and Y axes.")
-            
-            if x_axis == y_axis:
-                st.warning("Please select different features for X-axis and Y-axis.")
-            else:
-                st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}")
-
-                # Feature Stats
-                st.subheader("Feature Stats")
-                stats_dict = {
-                    f"{x_axis}": df[x_axis].describe(),
-                    f"{y_axis}": df[y_axis].describe()
-                }
-                stats_df = pd.concat(stats_dict, axis=1).T
-                st.dataframe(stats_df)
-
-
-                st.markdown("<br>"*1, unsafe_allow_html=True)
-
-                st.subheader(f"Line Plot: {x_axis} vs {y_axis}")
-                df_grouped = df.groupby(x_axis)[y_axis].mean().reset_index()
-
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(
-                    x=df_grouped[x_axis],
-                    y=df_grouped[y_axis],
-                    mode='lines+markers',
-                    name='Line Plot',
-                    line=dict(color='blue')
-                ))
-
-                fig.update_layout(
-                    xaxis_title=x_axis,
-                    yaxis_title=y_axis,
-                    width=1000,
-                    height=400,
-                    margin=dict(l=0, r=0, t=0, b=50)
-                )
-                st.plotly_chart(fig)
-
-        elif chart_type == "Box Plot":
-            left_column, right_column =st.columns(2)
-            with left_column:
-                x_axis = st.selectbox('Select X-axis feature:', df.columns.tolist())
-            with right_column:
-                y_axis = st.selectbox('Select Y-axis feature:', df.columns.tolist())
-            
-            st.write("### Box Plot Visualization")
-            st.write("A box plot is useful for displaying the distribution of a dataset based on a continuous variable, grouped by another variable.")
-            if x_axis and y_axis:
-                st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}")
-
-                # Feature Stats
-                st.subheader("Feature Stats")
-                stats_dict = {
-                    f"{x_axis}": df[x_axis].describe(),
-                    f"{y_axis}": df[y_axis].describe(),
-                }
-                stats_df = pd.concat(stats_dict, axis=1).T
-                st.dataframe(stats_df)
-
-                st.markdown("<br>"*1, unsafe_allow_html=True)
-
-            st.subheader(f"Box Plot: {x_axis} vs {y_axis}")
-            fig = px.box(df, x=x_axis, y=y_axis,
-                             labels={x_axis: x_axis, y_axis: y_axis},
-                             )
-            fig.update_layout(
-                    width=1000,  # Adjust width to match selectbox
-                    height=400,
-                    margin=dict(l=0, r=0, t=0, b=50)  # Adjust top margin here
-                )
-            st.plotly_chart(fig)
-
-        elif chart_type == "Scatter Plot":
-            left_column, right_column = st.columns(2)
-            with left_column:
-                x_axis = st.selectbox('Select X-axis feature:', df.columns.tolist())
-                
-            with right_column:
-                y_axis = st.selectbox('Select Y-axis feature:', df.columns.tolist())
-
-            st.write("### Scatter Plot Visualization")
-            st.write("Scatter plots are great for visualizing relationships between two continuous variables, with the option to color-code based on a third feature.")
-
-            if x_axis and y_axis:
-                st.write(f"Selected Features: **X-axis:** {x_axis}, **Y-axis:** {y_axis}")
-
-                # Feature Stats
-                st.subheader("Feature Stats")
-                stats_dict = {
-                    f"{x_axis}": df[x_axis].describe(),
-                    f"{y_axis}": df[y_axis].describe(),
-                }
-                stats_df = pd.concat(stats_dict, axis=1).T
-                st.dataframe(stats_df)
-
-                st.markdown("<br>" * 1, unsafe_allow_html=True)
-
-                # Scatter Plot
-                st.subheader(f"Scatter Plot: {x_axis} vs {y_axis}")
-                custom_colors = px.colors.qualitative.Set1
-
-                fig = px.scatter(
-                    df, x=x_axis, y=y_axis,
-                    color_discrete_sequence=custom_colors,
-                    title=f"Scatter Plot of {y_axis} vs {x_axis}",
-                    labels={x_axis: x_axis.capitalize(), y_axis: y_axis.capitalize()},
-                    width=1000,
-                    height=400
-                )
-
-                fig.update_layout(
-                    margin=dict(l=0, r=0, t=0, b=50)  # Adjust margins if necessary
-                )
-
-                st.plotly_chart(fig)
-
-
-    with col2:
-
-        st.subheader("Data Overview")
-        st.write("**Total Records:** ", len(df))
-        st.write("**Features:**", len(df.columns))
-        st.write("**Columns:**", ', '.join(df.columns))
-
-
-    # Define the questions and their corresponding answers
-    qa_data = {
-        "Q2": {
-            "question": "Why Can Patients with High Serum Creatinine Levels Have Worse Outcomes Even If Their Ejection Fraction Is Normal?",
-            "answer": """
-            High serum creatinine is a significant biomarker for heart failure, as kidney dysfunction is common among these patients [8]. It is associated with an increased risk of mortality. However, a pertinent question arises: why are patients with normal ejection fractions but high serum creatinine levels at risk of death? 
-
-            To explore this, we first need to establish the normal ranges for serum creatinine and ejection fraction:
-            
-            - **Normal Serum Creatinine Levels:**
-                - Men: **0.74 to 1.35 mg/dL** [9]
-                - Women: **0.59 to 1.04 mg/dL**
-            
-            - **Normal Ejection Fraction:** 
-                - An ejection fraction of over **50%** is considered normal for both sexes [10].
-
-            Based on the analysis of this subpopulation, the main findings are as follows:
-
-            - **Anemia**: Patients with anemia are more likely to experience mortality, as they show a higher count in the "Dead" category compared to those who survived.
-            
-            - **Gender**: Being male is a significant factor in the risk of mortality.
-
-            - **Serum Sodium Levels**: Those who passed away tended to have higher serum sodium levels on average, concentrated between **137-142 mmol/L**.
-
-            - **Platelet Counts**: Survivors generally had higher platelet counts, while those who died had relatively lower counts. This suggests that lower platelet counts might be associated with worse outcomes.
-
-            - **Diabetes**: The role of diabetes in mortality could not be clearly distinguished from the dataset.
-
-            In summary, while high serum creatinine levels indicate kidney dysfunction and a risk factor for mortality, other factors such as anemia, gender, serum sodium levels, and platelet counts also play critical roles in determining patient outcomes.
-            """
-        },
-        "Q3": {
-            "question": "Why Do Some Patients Have Higher Serum Creatinine Levels Than Others?",
-            "answer": """
-            - **Sex (Boxplot)**: The boxplot of serum creatinine by sex shows that males tend to have higher serum creatinine levels than females. This could be related to differences in muscle mass, as creatinine is a byproduct of muscle metabolism.
-
-            - **High Blood Pressure (Boxplot)**: The boxplot for high blood pressure reveals that patients with high blood pressure tend to have slightly higher serum creatinine levels. This is likely due to the long-term effects of high blood pressure on kidney function, leading to reduced filtration efficiency and thus higher serum creatinine.
-
-            - **Diabetes (Boxplot)**: The boxplot for diabetes shows that diabetic patients tend to have higher serum creatinine levels. This could be due to diabetic nephropathy, a condition where high blood sugar levels damage the kidneys, reducing their ability to filter creatinine from the blood.
-
-            - **Anaemia (Boxplot)**: Patients with anaemia seem to show slightly higher serum creatinine levels. Anaemia can be associated with kidney problems, as the kidneys help regulate red blood cell production. Impaired kidney function, which can increase creatinine levels, may lead to anaemia in some patients.
-
-            - **Smoking (Boxplot)**: The boxplot for smoking status shows that smokers tend to have higher serum creatinine levels than non-smokers. Smoking is known to impair kidney function, likely due to the harmful effects of tobacco on the cardiovascular system, which in turn affects kidney filtration.
-
-            - **Age (Scatter Plot)**: The scatter plot of serum creatinine vs. age suggests that older patients generally have higher serum creatinine levels. This could be due to the natural decline in kidney function with age, as the kidneys become less efficient at filtering waste from the blood over time.
-
-            - **Ejection Fraction (Scatter Plot)**: The scatter plot of serum creatinine vs. ejection fraction indicates that patients with lower ejection fractions tend to have higher creatinine levels. Reduced heart function (low ejection fraction) can impair kidney function due to poor circulation and reduced kidney perfusion, leading to higher creatinine.
-
-            - **Creatinine Phosphokinase (CPK) (Scatter Plot)**: The scatter plot of serum creatinine vs. CPK levels shows no clear linear trend, but patients with higher CPK levels (indicating muscle injury or stress) may have elevated creatinine due to increased muscle breakdown.
-
-            - **Platelet Count (Scatter Plot)**: The scatter plot of serum creatinine vs. platelet count suggests no strong correlation, indicating that platelet levels may not significantly influence serum creatinine levels.
-
-            - **Serum Sodium (Scatter Plot)**: The scatter plot of serum creatinine vs. serum sodium levels shows some trend where lower sodium levels could be associated with higher creatinine levels. Low sodium could be an indicator of kidney dysfunction, which correlates with higher creatinine.
-
-            In summary, factors such as sex, high blood pressure, diabetes, anaemia, smoking, and age appear to be significant contributors to variations in serum creatinine levels, as visualized in the plots. This supports the idea that differences in kidney function and muscle metabolism, influenced by these variables, are key reasons for the higher creatinine levels in some patients.
-            """
-        }
-    }
-
-    selected_question = st.selectbox("Select a question to display:", options=list(qa_data.keys()))
-
-    # Display the selected question and answer
-    st.write(f"#### {qa_data[selected_question]['question']}")
-    st.write(qa_data[selected_question]['answer'])
-
-    st.markdown("<br>"*3, unsafe_allow_html=True)
+    
+    show_correlation(df)
 
 import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
 
 def show_correlation(df):
     st.subheader("Correlation Matrix")
-
+    st.write("A correlation matrix shows how heart failure factors are related to each other in a simple table")
+    df.rename(columns={"DEATH_EVENT": "mortality risk"}, inplace=True)
     selected_features = df.columns.tolist()
     st.markdown("")
 
+    target_variable = 'mortality risk'  
+    selected_features = [feature for feature in df.columns if feature != 'mortality']
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.markdown(
+            """
+            <div style="display: flex; justify-content: center;">
+                <div style="margin: 10px;">
+                    <br><br><br>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        selected_feature = st.selectbox("Select a feature to view its correlation with the target variable:", selected_features,
+                                    index=selected_features.index("diabetes"))
+    with col2:
+        if len(selected_features) > 0:
+            
+            corr_df = df[selected_features].corr()
+
+            target_correlation = corr_df[target_variable][selected_feature]
+
+            st.write(f"The correlation Coefficient between {selected_feature} and {target_variable} is: {target_correlation:.2f}")
+            color_map = {
+                'Very high positive correlation': '#e74c3c',  
+                'High positive correlation': '#d45d27',       
+                'Moderate positive correlation': '#e6a900',   
+                'Low positive correlation': '#f0e68c',       
+                'Negligible correlation': '#bdc3c7',          
+                'Very high negative correlation': '#c0392b', 
+                'High negative correlation': '#8e44ad',       
+                'Moderate negative correlation': '#2980b9',   
+                'Low negative correlation': '#3498db',       
+            }
+
+            if target_correlation >= 0.9:
+                interpretation = 'Very high positive correlation'
+                color = color_map[interpretation]
+            elif target_correlation >= 0.7:
+                interpretation = 'High positive correlation'
+                color = color_map[interpretation]
+            elif target_correlation >= 0.5:
+                interpretation = 'Moderate positive correlation'
+                color = color_map[interpretation]
+            elif target_correlation >= 0.3:
+                interpretation = 'Low positive correlation'
+                color = color_map[interpretation]
+            elif target_correlation >= 0.0:
+                interpretation = 'Negligible correlation'
+                color = color_map[interpretation]
+            elif target_correlation <= -0.9:
+                interpretation = 'Very high negative correlation'
+                color = color_map[interpretation]
+            elif target_correlation <= -0.7:
+                interpretation = 'High negative correlation'
+                color = color_map[interpretation]
+            elif target_correlation <= -0.5:
+                interpretation = 'Moderate negative correlation'
+                color = color_map[interpretation]
+            elif target_correlation <= -0.3:
+                interpretation = 'Low negative correlation'
+                color = color_map[interpretation]
+            else:
+                interpretation = 'Negligible correlation'
+                color = color_map[interpretation]
+
+            st.markdown(
+                f"""
+                <div style="background-color: {color}; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 700px;">
+                    <h3 style="color: white; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Correlation Interpretation</h3>
+                    <p style="color: white; font-family: 'Arial', sans-serif; font-size: 18px; margin-bottom: 5px;">The correlation between <strong>{selected_feature}</strong> and <strong>{target_variable}</strong> is:</p>
+                    <h2 style="color: white; font-family: 'Arial', sans-serif; font-size: 24px; font-weight: bold;">{interpretation}</h2>
+                </div>
+                """, unsafe_allow_html=True
+            )
+
+        
     if len(selected_features) > 0:
 
         corr_df = df[selected_features].corr()
-
 
         fig = ff.create_annotated_heatmap(
             z=corr_df.values,
@@ -944,48 +804,6 @@ def show_correlation(df):
 
         st.plotly_chart(fig, use_container_width=True)
 
-        # Detailed Interpretation
-        st.write(
-                """
-                #### Q1: Why Are Certain Heart Failure Patients at Risk of Death?
-
-                **A1:** To answer the question "Why Are Certain Heart Failure Patients at Risk of Death?", we need to first observe the correlations between features and the mortality outcome. Correlation coefficients range from **-1 to 1**:
-                - A coefficient close to **1** indicates a positive correlation, meaning as one variable increases, so does the other.
-                - A coefficient close to **-1** indicates a negative correlation, meaning as one variable increases, the other decreases.
-                - A coefficient around **0** suggests no correlation.
-
-                From the heatmap analysis, we can understand that the following features have relatively stronger correlations with death:
-
-                - **Serum Creatinine:** Positive correlation with DEATH_EVENT (**0.29**)
-                -- Higher serum creatinine levels are associated with increased likelihood of mortality.
-                
-                - **Ejection Fraction:** Negative correlation with DEATH_EVENT (**-0.27**)
-                -- A higher ejection fraction indicates a lower risk of mortality, highlighting the negative correlation.
-                
-                - **Time:** Negative correlation with DEATH_EVENT (**-0.53**)
-                -- Longer time (days) a patient lives correlates with lower mortality risk, emphasizing the importance of intervention and care plans for heart failure patients.
-
-                - **Age:** Positive correlation with DEATH_EVENT (**0.25**)
-                -- Older patients are more likely to experience mortality.
-
-                - **Serum Sodium:** Negative correlation with DEATH_EVENT (**-0.20**)
-                -- Higher serum sodium levels indicate a lower likelihood of death.
-
-                **Conclusion:** Certain heart failure patients are more likely to die due to:
-                - Higher age
-                - Higher serum creatinine levels
-                - Lower ejection fraction
-                - Lower serum sodium levels
-
-                Time is also a significant factor, but its interpretation depends on the context of the patient's care.
-
-                In scientific literature, higher serum creatinine, lower ejection fraction, and lower serum sodium (hyponatremia) are linked to an increased risk of mortality, validating the correlations found in this dataset [5-7].
-
-                It's noteworthy that smoking, diabetes, anemia, and high blood pressure did not show strong correlations to mortality in this dataset. This suggests that these features alone are not sufficient to determine the mortality risk for patients.
-                """
-            )
-
-        
     else:
         st.warning("Please select at least one feature for correlation analysis.")
 
