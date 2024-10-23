@@ -270,7 +270,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Factors Correlation","Mortality Risk Prediction", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Overview of Patients", "Factors Correlation","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={'time': 'follow-up days'}, inplace=True)
@@ -679,7 +679,15 @@ import plotly.figure_factory as ff
 def show_correlation(df):
     st.subheader("Correlation Matrix")
     st.write("A correlation matrix shows how heart failure factors are related to each other in a simple table.")
-    df.rename(columns={"DEATH_EVENT": "mortality risk"}, inplace=True)
+    df.rename(columns={
+                        "DEATH_EVENT": "mortality risk",
+                        "creatinine_phosphokinase": "creatinine phosphokinase",
+                        "ejection_fraction": "ejection fraction",
+                        "serum_creatinine": "serum creatinine",
+                        "serum_sodium": "serum sodium",
+                        "high_blood_pressure": "hypertension"
+                        }, inplace=True)
+
     selected_features = df.columns.tolist()
     st.markdown("")
 
@@ -768,7 +776,7 @@ def show_correlation(df):
                 </div>
                 """, unsafe_allow_html=True
             )
-    st.markdown("")
+    st.markdown("<br>" *2, unsafe_allow_html=True)
         
     if len(selected_features) > 0:
 
@@ -797,7 +805,7 @@ def show_correlation(df):
     else:
         st.warning("Please select at least one feature for correlation analysis.")
     
-    st.write("hahahah")
+    st.write("The heat map illustrates the correlation between cardiovascular disease-related data features, revealing a positive correlation between serum creatinine and mortality, as well as between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibit a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
 import pandas as pd
@@ -931,6 +939,9 @@ def show_model_performance(df):
         </p>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555; margin-top: 20px;">
             Understanding these contributions is vital for interpreting the model's behavior and making informed decisions based on the predictions.
+            For more about SHAP score, go to the following link: 
+        <a href="https://selfexplainml.github.io/PiML-Toolbox/_build/html/guides/explain/shap.html" style="color: #2980b9; text-decoration: underline;">
+            SHAP Score Guide
         </p>
     </div>
     """
