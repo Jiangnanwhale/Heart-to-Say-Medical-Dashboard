@@ -270,7 +270,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Factors Correlation","Predictive analytics", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Factors Correlation","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={'time': 'follow-up days'}, inplace=True)
@@ -281,7 +281,7 @@ def show_input_data():
         show_eda(df)
     elif option == "Contact Us":
         show_contact_us()
-    elif option == "Predictive analytics":
+    elif option == "Mortality Risk Prediction":
         with st.sidebar:
             sub_option = st.radio("Choose an action:", ["Input your data", "Model explanation (SHAP)"])
         if sub_option == "Input your data":
@@ -422,9 +422,7 @@ def upload_pre_model():
                     if prediction[0] == 1
                     else "Patient is at low risk of death. Regular monitoring is recommended."
                 )
-            
-            st.subheader("Recommendation Card")
-            # Create a custom styled recommendation box
+  
             st.markdown(f"""
             <div style="
                 background-color: #ffffff;
@@ -441,7 +439,7 @@ def upload_pre_model():
                     color: #2c3e50;
                     padding-bottom: 10px;
                 ">
-                    Model: {"XGBClassifier"}
+                    Prediction Outcome
                 </h2>
                 <hr style="
                     border: 0;
@@ -450,36 +448,22 @@ def upload_pre_model():
                     margin: 20px 0;
                 ">
                 <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
+                font-size: 24px;  
+                margin: 10px 0;
+                font-weight: bold;
+            ">
+                Risk Level: 
+                <span style="
                     font-weight: bold;
+                    font-size: 24px;  
+                    color: {'#e74c3c' if prediction[0] == 1 else '#27ae60'};
                 ">
-                    Prediction: 
-                    <span style="
-                        font-weight: bold;
-                        color: {'#e74c3c' if prediction[0] == 1 else '#27ae60'};
-                    ">
-                        {'High Risk' if prediction[0] == 1 else 'Low Risk'}
-                    </span>
-                </p>
-                <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
-                    font-weight: bold;
-                ">
-                    Recommendation: 
-                    <span style="
-                        color: #2980b9;
-                        background-color: #ecf0f1;
-                        border-radius: 5px;
-                        padding: 5px 10px;
-                        display: inline-block;
-                    ">
-                        {recommendation}
-                    </span>
+                    {'High Risk' if prediction[0] == 1 else 'Low Risk'}
+                </span>
                 </p>
             </div>
-            """, unsafe_allow_html=True)  # Display the recommendation with custom styling
+            """, unsafe_allow_html=True)
+
 
             st.session_state["input_history"].append({
                 "age": age,
@@ -935,7 +919,7 @@ def show_model_performance(df):
     <div style="background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">
         <h2 style="color: #2c3e50; font-family: 'Arial', sans-serif; margin-bottom: 15px;">SHAP Analysis Results Summary</h2>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #34495e; margin-bottom: 20px;">
-            The SHAP analysis provides crucial insights into how individual features influence the model's predictions regarding mortality risk.
+            The SHAP analysis provides crucial insights into how each factor influence the model's predictions regarding mortality risk.
         </p>
         <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Key Important Factors:</h3>
         <ul style="font-family: 'Arial', sans-serif; color: #444; list-style-type: circle; padding-left: 20px;">
@@ -943,7 +927,7 @@ def show_model_performance(df):
         </ul>
         <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-top: 20px; margin-bottom: 10px;">Insights:</h3>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555;">
-            The plot suggests that <span style="color: red;"><strong>{top_contributions.iloc[0]['Feature']}</strong></span> had the <strong>greatest impact on the model output</strong>, followed by <span style="color: red;"><strong>{top_contributions.iloc[1]['Feature']}</strong></span> and <span style="color: red;"><strong>{top_contributions.iloc[2]['Feature']}</strong></span>.
+            The plots suggests that <span style="color: red;"><strong>{top_contributions.iloc[0]['Feature']}</strong></span> had the <strong>greatest impact on the model output</strong>, followed by <span style="color: red;"><strong>{top_contributions.iloc[1]['Feature']}</strong></span> and <span style="color: red;"><strong>{top_contributions.iloc[2]['Feature']}</strong></span>.
         </p>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555; margin-top: 20px;">
             Understanding these contributions is vital for interpreting the model's behavior and making informed decisions based on the predictions.
