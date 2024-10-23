@@ -392,7 +392,7 @@ def upload_pre_model():
         st.session_state["time"] = time
         
         prediction = None
-        model = joblib.load('./xgb3_model.pkl')
+        model = joblib.load('xgb3_model.pkl')
         # Check if the loaded model is indeed a valid model
         if hasattr(model, 'predict'):
             # Prepare input data for the model
@@ -824,7 +824,7 @@ def show_model_performance(df):
 
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, stratify = y, test_size=0.30, random_state=25)
 
-    model = joblib.load("./xgb3_model.pkl")
+    model = joblib.load("xgb3_model.pkl")
     model.fit(X_train, y_train)
     # Make predictions
     predictions = model.predict(X_test)
