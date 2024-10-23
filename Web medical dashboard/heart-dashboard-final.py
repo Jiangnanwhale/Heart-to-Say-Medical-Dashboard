@@ -91,7 +91,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def show_login_image():
-    image_path_2 = r"assets/heart_to_say.png"
+    image_path_2 = r"/assets/heart_to_say.png"
     image_2 = Image.open(image_path_2)  # Load image
     resized_image_2 = resize_image(image_2, width=300)  # Resize image
     st.image(resized_image_2, caption="", use_column_width=False)
@@ -270,14 +270,14 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Heart Failures Factors Correlation","Predictive analytics", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Factors Correlation","Predictive analytics", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={'time': 'follow-up days'}, inplace=True)
 
     if option == "Descriptive analytics":
         show_data_overview(df)
-    elif option == "Heart Failures Factors Correlation":
+    elif option == "Factors Correlation":
         show_eda(df)
     elif option == "Contact Us":
         show_contact_us()
