@@ -700,7 +700,8 @@ def show_correlation(df):
     st.markdown("")
 
     target_variable = 'mortality risk'  
-    selected_features = [feature for feature in df.columns if feature != 'mortality']
+    selected_features = [feature for feature in df.columns if feature != 'DEATH_EVENT']
+    
     col1, col2 = st.columns([1, 2])
     with col1:
         st.markdown(
@@ -770,11 +771,21 @@ def show_correlation(df):
                 f"""
                 <div style="background-color: {color}; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 700px;">
                     <h3 style="color: white; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Correlation Interpretation</h3>
-                    <p style="color: white; font-family: 'Arial', sans-serif; font-size: 18px; margin-bottom: 5px;">The correlation between <strong>{selected_feature}</strong> and <strong>{target_variable}</strong> is:</p>
-                    <h2 style="color: white; font-family: 'Arial', sans-serif; font-size: 24px; font-weight: bold;">{interpretation}</h2>
+                    <p style="color: white; font-family: 'Arial', sans-serif; font-size: 18px; margin-bottom: 5px;">
+                        The correlation between 
+                        <strong style="color: yellow; font-size: 24px;">{selected_feature}</strong> 
+                        and 
+                        <strong style="color: white; text-shadow: 1px 1px 2px black; font-size: 24px;">{target_variable}</strong> 
+                        is:
+                    </p>
+                    <h2 style="color: #FFD700; font-family: 'Arial', sans-serif; font-size: 26px; font-weight: bold; text-shadow: 1px 1px 2px black;">
+                        {interpretation}
+                    </h2>
                 </div>
                 """, unsafe_allow_html=True
             )
+
+
 
         
     if len(selected_features) > 0:
