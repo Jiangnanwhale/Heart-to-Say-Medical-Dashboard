@@ -2,9 +2,8 @@ streamlit
 pandas
 numpy
 plotly
-pillow
+Pillow
 scikit-learn
-XlsxWriter
-xgboost
+joblib
 shap
-seaborn
+matplotlib
