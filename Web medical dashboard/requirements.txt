@@ -7,5 +7,5 @@ scikit-learn
 joblib
 shap
 matplotlib
-xgboost==1.6.1
-joblib==1.2.0
+xgboost
+joblib
