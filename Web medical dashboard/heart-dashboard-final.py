@@ -283,10 +283,10 @@ def show_input_data():
         show_contact_us()
     elif option == "Predictive analytics":
         with st.sidebar:
-            sub_option = st.radio("Choose an action:", ["Input your data", "Model performance (SHAP)"])
+            sub_option = st.radio("Choose an action:", ["Input your data", "Model explanation (SHAP)"])
         if sub_option == "Input your data":
             upload_pre_model()
-        elif sub_option == "Model performance (SHAP)":
+        elif sub_option == "Model explanation (SHAP)":
             show_model_performance(df)
     elif option == "Home":
         show_home()
@@ -341,7 +341,6 @@ def upload_pre_model():
     # Initialize the session state key if it doesn't exist
     if "input_history" not in st.session_state:
         st.session_state["input_history"] = []
-
     
     # Create a container for the input fields to improve layout
     with st.form(key='input_form'):
@@ -349,19 +348,22 @@ def upload_pre_model():
 
         with col1:
             age = st.number_input("**Age (years)**", min_value=0, step=1, value=st.session_state.get("age", 0))
-            creatinine_phosphokinase = st.number_input("**Creatinine Phosphokinase (mcg/L)**", min_value=0.0, format="%.2f", value=st.session_state.get("creatinine_phosphokinase", 0.0))
-            ejection_fraction = st.number_input("**Ejection Fraction (%)**", min_value=0.0, max_value=100.0, format="%.2f", value=st.session_state.get("ejection_fraction", 0.0))
-            platelets = st.number_input("**Platelets (kiloplatelets/mL)**", min_value=0, value=st.session_state.get("platelets", 0))
-        with col2:
-            serum_creatinine = st.number_input("**Serum Creatinine (mg/dL)**", min_value=0.0, format="%.2f", value=st.session_state.get("serum_creatinine", 0.0))
-            serum_sodium = st.number_input("**Serum Sodium (mEq/L)**", min_value=0.0, format="%.2f", value=st.session_state.get("serum_sodium", 0.0))
-            anaemia = st.selectbox("**Anaemia (Yes/No)**", options=["Yes", "No"], index=0 if st.session_state.get("anaemia") != "Yes" else 1)
-            diabetes = st.selectbox("**Diabetes (Yes/No)**", options=["Yes", "No"], index=0 if st.session_state.get("diabetes") != "Yes" else 1)
-        with col3:
-            high_blood_pressure = st.selectbox("**High Blood Pressure (Yes/No)**", options=["Yes", "No"], index=0 if st.session_state.get("high_blood_pressure") != "Yes" else 1)
             sex = st.selectbox("**Sex**", options=["Male", "Female"], index=0 if st.session_state.get("sex") != "Female" else 1)
             smoking = st.selectbox("**Smoking (Yes/No)**", options=["Yes", "No"], index=0 if st.session_state.get("smoking") != "Yes" else 1)
             time = st.number_input("**Follow-up Period (days)**", min_value=0, value=st.session_state.get("time", 0))
+            
+        with col2:
+            high_blood_pressure = st.selectbox("**Hypertension (Yes/No)**", options=["Yes", "No"], index=0 if st.session_state.get("high_blood_pressure") != "Yes" else 1)
+            anaemia = st.selectbox("**Anaemia (Yes/No)**", options=["Yes", "No"], index=0 if st.session_state.get("anaemia") != "Yes" else 1)
+            diabetes = st.selectbox("**Diabetes (Yes/No)**", options=["Yes", "No"], index=0 if st.session_state.get("diabetes") != "Yes" else 1)
+            ejection_fraction = st.number_input("**Ejection Fraction (%)**", min_value=0.0, max_value=100.0, format="%.2f", value=st.session_state.get("ejection_fraction", 0.0))
+            
+        with col3:
+            serum_creatinine = st.number_input("**Serum Creatinine (mg/dL)**", min_value=0.0, format="%.2f", value=st.session_state.get("serum_creatinine", 0.0))
+            serum_sodium = st.number_input("**Serum Sodium (mEq/L)**", min_value=0.0, format="%.2f", value=st.session_state.get("serum_sodium", 0.0))
+            creatinine_phosphokinase = st.number_input("**Creatinine Phosphokinase (mcg/L)**", min_value=0.0, format="%.2f", value=st.session_state.get("creatinine_phosphokinase", 0.0))
+            platelets = st.number_input("**Platelets (kiloplatelets/mL)**", min_value=0, value=st.session_state.get("platelets", 0))
+            
            
 
         # Submit button for the form
@@ -479,23 +481,21 @@ def upload_pre_model():
             </div>
             """, unsafe_allow_html=True)  # Display the recommendation with custom styling
 
-
-                # Append the current inputs to the input history, including the prediction if available    
-        st.session_state["input_history"].append({
-            "age": age,
-            "creatinine_phosphokinase": creatinine_phosphokinase,
-            "ejection_fraction": ejection_fraction,
-            "platelets": platelets,
-            "serum_creatinine": serum_creatinine,
-            "serum_sodium": serum_sodium,
-            "anaemia": anaemia,
-            "diabetes": diabetes,
-            "high_blood_pressure": high_blood_pressure,
-            "sex": sex,
-            "smoking": smoking,
-            "time": time,
-            "Prediction": "High Risk" if prediction is not None and prediction[0] == 1 else "Low Risk"
-        })
+            st.session_state["input_history"].append({
+                "age": age,
+                "creatinine_phosphokinase": creatinine_phosphokinase,
+                "ejection_fraction": ejection_fraction,
+                "platelets": platelets,
+                "serum_creatinine": serum_creatinine,
+                "serum_sodium": serum_sodium,
+                "anaemia": anaemia,
+                "diabetes": diabetes,
+                "high_blood_pressure": high_blood_pressure,
+                "sex": sex,
+                "smoking": smoking,
+                "time": time,
+                "Prediction": "High Risk" if prediction is not None and prediction[0] == 1 else "Low Risk"
+            })
 
     def format_record(record, idx):
         prediction = record.get("Prediction", "N/A")
@@ -550,15 +550,12 @@ def upload_pre_model():
         st.success("All inputs have been reset. You can continue entering data.")
     
     st.markdown("---") 
-      # Display input history in styled format
-    st.subheader("Input History")
-    if "input_history" in st.session_state:
+    show_history = st.checkbox("Show Input History")
+    if show_history:
+        st.subheader("Input History")
         for idx, record in enumerate(st.session_state["input_history"]):
             st.markdown(format_record(record, idx), unsafe_allow_html=True)
-    else:
-        st.info("No input history available.")
-    st.markdown("")
-    st.markdown("")
+    st.markdown("<br><br><br>", unsafe_allow_html=True) 
 
 import streamlit as st
 import pandas as pd
