@@ -694,7 +694,7 @@ import plotly.figure_factory as ff
 
 def show_correlation(df):
     st.subheader("Correlation Matrix")
-    st.write("A correlation matrix shows how heart failure factors are related to each other in a simple table")
+    st.write("A correlation matrix shows how heart failure factors are related to each other in a simple table.")
     df.rename(columns={"DEATH_EVENT": "mortality risk"}, inplace=True)
     selected_features = df.columns.tolist()
     st.markdown("")
@@ -784,8 +784,6 @@ def show_correlation(df):
                 </div>
                 """, unsafe_allow_html=True
             )
-
-
 
         
     if len(selected_features) > 0:
