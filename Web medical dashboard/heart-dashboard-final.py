@@ -273,6 +273,8 @@ def show_input_data():
         option = st.radio("Select an option:", ["Home","Descriptive analytics", "Diagnostic analytics","Predictive analytics", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
+    df.rename(columns={'time': 'follow-up days'}, inplace=True)
+
     if option == "Descriptive analytics":
         show_data_overview(df)
     elif option == "Diagnostic analytics":
@@ -580,16 +582,17 @@ def show_data_overview(df):
     """
 
     with col1:
-        st.markdown(card_style.format(bg_color="#1abc9c", title="Total Records", value=total_records,
-                                    description="This represents the total number of patient records in the dataset."), unsafe_allow_html=True)
+        st.markdown(card_style.format(bg_color="#2ca02c", title="Total Records", value=total_records,
+                                  description="This represents the total number of patient records in the dataset."), unsafe_allow_html=True)
 
     with col2:
-        st.markdown(card_style.format(bg_color="#e74c3c", title="Death Cases", value=positive_cases,
+        st.markdown(card_style.format(bg_color="#ff0000", title="Death Cases", value=positive_cases,
                                     description="Number of patients who experienced a death event."), unsafe_allow_html=True)
 
     with col3:
-        st.markdown(card_style.format(bg_color="#3498db", title="Survival Cases", value=negative_cases,
+        st.markdown(card_style.format(bg_color="#808080", title="Survival Cases", value=negative_cases,
                                     description="Number of patients who did not experience a death event."), unsafe_allow_html=True)
+
     
     st.markdown("")
     st.markdown("")
@@ -608,21 +611,34 @@ def show_data_overview(df):
         
     with left_column:
     
-        selected_column = st.selectbox("Select a feature to visualize", categorical_features)
+        selected_column = st.selectbox("Select a binary feature to visualize (e.g., diabetes, anaemia, etc)", categorical_features,
+                                       index=categorical_features.index('diabetes'))
         if 'DEATH_EVENT' in categorical_features:
             categorical_features.remove('DEATH_EVENT')
     
         count_data = df[selected_column].value_counts().reset_index()
         count_data.columns = [selected_column, 'count']
+        if selected_column == 'sex':
+                label_map = {
+                    0: 'Female',
+                    1: 'Male'
+                }
+        else:
+            label_map = {
+                0: f"No {selected_column}",
+                1: f"{selected_column} Occurred"
+            }
+        count_data[selected_column] = count_data[selected_column].map(label_map)
 
         fig_feature_1 = px.pie(
             count_data, 
             names=selected_column, 
             values='count', 
-            color_discrete_sequence=['#2ca02c', '#ff7f0e'], 
+            color_discrete_sequence=['#808080', '#ff0000'], 
             title=f'Distribution of {selected_column}'
         )
         fig_feature_1.update_traces(textinfo='percent+label',
+                                    textfont=dict(color='white'),
                                     marker=dict(line=dict(color='white', width=4))
         )           
         st.plotly_chart(fig_feature_1, use_container_width=True)
@@ -635,24 +651,24 @@ def show_data_overview(df):
         st.write(conclusion_text)
 
         fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
-                    color_discrete_map={0: '#3498db', 1: '#e74c3c'},
+                    color_discrete_map={0: '#808080', 1: '#ff0000'},
                     title=f'Distribution of {selected_column} vs Death Event' )
-
+        fig_feature_2.for_each_trace(lambda t: t.update(name='Survived' if t.name == '0' else 'Death occured'))
         st.plotly_chart(fig_feature_2, use_container_width=True)
 
         with right_column:
 
-            selected_column = st.selectbox("Select a feature to visualize", numerical_features)
+            selected_column = st.selectbox("Select a continual feature to visualize (e.g., age, platelets, etc)", numerical_features)
             if 'DEATH_EVENT' in numerical_features:
                 numerical_features.remove('DEATH_EVENT')
 
             fig_feature_1 = px.histogram(df, x=selected_column, barmode='group',
-                                    color_discrete_sequence=['#FF69B4'],
+                                    color_discrete_sequence=['#2ca02c'],
                                         title=f'Distribution of {selected_column}')
             fig_feature_1.update_layout(bargap=0.2)
             
             fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
-                                        color_discrete_sequence=['#8A2BE2', '#FFD700'],
+                                        color_discrete_sequence=['#ff0000','#808080'],
                                         title=f'Distribution of {selected_column} vs Death Event')
             
             st.plotly_chart(fig_feature_1, use_container_width=True)
@@ -665,7 +681,7 @@ def show_data_overview(df):
                 f"with an average value of {average_value}."
             )
             st.write(conclusion_text)
-            
+            fig_feature_2.for_each_trace(lambda t: t.update(name='Survived' if t.name == '0' else 'Death occured'))
             st.plotly_chart(fig_feature_2, use_container_width=True)
 
     st.markdown("<br>"*3, unsafe_allow_html=True)
