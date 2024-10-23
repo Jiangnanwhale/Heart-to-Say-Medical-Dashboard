@@ -1,6 +1,7 @@
 ## "pip install -r requirements.txt" in terminal first##
 
 import streamlit as st
+import os
 import io
 import pandas as pd
 import numpy as np
@@ -10,7 +11,6 @@ import plotly.graph_objects as go
 import warnings
 from sklearn.cluster import KMeans
 warnings.filterwarnings('ignore')
-
 
 # Streamlit page configuration
 st.set_page_config(page_title="Heart to Say", 
@@ -538,9 +538,6 @@ def upload_pre_model():
         for idx, record in enumerate(st.session_state["input_history"]):
             st.markdown(format_record(record, idx), unsafe_allow_html=True)
     st.markdown("<br><br><br>", unsafe_allow_html=True) 
-
-import streamlit as st
-import pandas as pd
 
 def show_data_overview(df):
     st.title("Overview of Patients")
