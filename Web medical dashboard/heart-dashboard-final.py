@@ -568,7 +568,6 @@ def show_data_overview(df):
     total_records = len(df)
     positive_cases = df['DEATH_EVENT'].value_counts().get(1, 0)
     negative_cases = df['DEATH_EVENT'].value_counts().get(0, 0)
-    missing_values = df.isnull().sum().sum()
 
     col1, col2, col3 = st.columns(3)
 
@@ -585,77 +584,64 @@ def show_data_overview(df):
                                     description="This represents the total number of patient records in the dataset."), unsafe_allow_html=True)
 
     with col2:
-        st.markdown(card_style.format(bg_color="#e74c3c", title="Positive Cases", value=positive_cases,
-                                    description="Number of patients who experienced a death event (1)."), unsafe_allow_html=True)
+        st.markdown(card_style.format(bg_color="#e74c3c", title="Death Cases", value=positive_cases,
+                                    description="Number of patients who experienced a death event."), unsafe_allow_html=True)
 
     with col3:
-        st.markdown(card_style.format(bg_color="#3498db", title="Negative Cases", value=negative_cases,
-                                    description="Number of patients who did not experience a death event (0)."), unsafe_allow_html=True)
+        st.markdown(card_style.format(bg_color="#3498db", title="Survival Cases", value=negative_cases,
+                                    description="Number of patients who did not experience a death event."), unsafe_allow_html=True)
     
     st.markdown("")
     st.markdown("")
 
-    condition_filter = st.radio(
-        "Choose the condition for data distribution:",
-        ("Uivariate Analysis", "Bivariate or Multivariate Analysis")
+    st.subheader("Overview of Patient Data")
+    left_column, right_column = st.columns(2)
+    
+    col = list(df)
+    categorical_features = []
+    numerical_features = []
+    for i in col:
+        if len(df[i].unique()) > 5:
+            numerical_features.append(i)
+        else:
+            categorical_features.append(i)
+        
+    with left_column:
+    
+        selected_column = st.selectbox("Select a feature to visualize", categorical_features)
+        if 'DEATH_EVENT' in categorical_features:
+            categorical_features.remove('DEATH_EVENT')
+    
+        count_data = df[selected_column].value_counts().reset_index()
+        count_data.columns = [selected_column, 'count']
+
+        fig_feature_1 = px.pie(
+            count_data, 
+            names=selected_column, 
+            values='count', 
+            color_discrete_sequence=['#2ca02c', '#ff7f0e'], 
+            title=f'Distribution of {selected_column}'
         )
+        fig_feature_1.update_traces(textinfo='percent+label',
+                                    marker=dict(line=dict(color='white', width=4))
+        )           
+        st.plotly_chart(fig_feature_1, use_container_width=True)
 
-    if condition_filter == "Uivariate Analysis":
+        selected_counts = df[selected_column].value_counts()
+        selected_column_percentage = round((selected_counts.get(1, 0) / len(df)) * 100)  # dead
+        opposite_percentage = round((selected_counts.get(0, 0) / len(df)) * 100) 
 
-        st.write("Here, numerical features are defined if the the attribute has more than 5 unique elements else it is a categorical feature. By the way, all categorical features here are boolean features.")
-        left_column, right_column = st.columns(2)
-        
-        col = list(df)
-        categorical_features = []
-        numerical_features = []
-        for i in col:
-            if len(df[i].unique()) > 5:
-                numerical_features.append(i)
-            else:
-                categorical_features.append(i)
-            
-        with left_column:
+        conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category. " 
+        st.write(conclusion_text)
 
-            st.write("### Distribution of Categorical Features")
-        
-            st.write("Select a Categorical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
-            selected_column = st.selectbox("Select a feature to visualize", categorical_features)
-            if 'DEATH_EVENT' in categorical_features:
-                categorical_features.remove('DEATH_EVENT')
-        
-            count_data = df[selected_column].value_counts().reset_index()
-            count_data.columns = [selected_column, 'count']
+        fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
+                    color_discrete_map={0: '#3498db', 1: '#e74c3c'},
+                    title=f'Distribution of {selected_column} vs Death Event' )
 
-            fig_feature_1 = px.pie(
-                count_data, 
-                names=selected_column, 
-                values='count', 
-                color_discrete_sequence=['#2ca02c', '#ff7f0e'], 
-                title=f'Distribution of {selected_column}'
-            )
-            fig_feature_1.update_traces(textinfo='percent+label',
-                                        marker=dict(line=dict(color='white', width=4))
-            )           
-            st.plotly_chart(fig_feature_1, use_container_width=True)
+        st.plotly_chart(fig_feature_2, use_container_width=True)
 
-            selected_counts = df[selected_column].value_counts()
-            selected_column_percentage = round((selected_counts.get(1, 0) / len(df)) * 100)  # dead
-            opposite_percentage = round((selected_counts.get(0, 0) / len(df)) * 100) 
-
-            conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category. " 
-            st.write(conclusion_text)
-
-            fig_feature_2 = px.histogram(df, x=selected_column, color='DEATH_EVENT', barmode='group',
-                        color_discrete_map={0: '#3498db', 1: '#e74c3c'},
-                        title=f'Distribution of {selected_column} vs Death Event' )
-
-            st.plotly_chart(fig_feature_2, use_container_width=True)
-    
         with right_column:
 
-            st.write("### Distribution of Numerical Features")
-
-            st.write("Select a numerical feature from the dataset to visualize its distribution. The histogram will color-code the data based on the DEATH_EVENT status.")
             selected_column = st.selectbox("Select a feature to visualize", numerical_features)
             if 'DEATH_EVENT' in numerical_features:
                 numerical_features.remove('DEATH_EVENT')
@@ -682,90 +668,6 @@ def show_data_overview(df):
             
             st.plotly_chart(fig_feature_2, use_container_width=True)
 
-    elif condition_filter == "Bivariate or Multivariate Analysis":
-        
-        left_column, right_column = st.columns(2)
-
-        with left_column:
-            st.write("## Distribution Based on Smoking Status and Selected Features")
-            st.write("Visualize how smoking habits differ by selected features in the dataset.")
-
-            grouped_data = df.groupby(by=["smoking", "sex"]).size().unstack()
-
-            grouped_data = grouped_data.reset_index()
-            grouped_data.columns = ['smoking'] + list(grouped_data.columns[1:])
-            grouped_data = grouped_data.melt(id_vars='smoking', var_name='sex', value_name='count')
-            
-            fig = px.bar(grouped_data, 
-                     x='count', 
-                     y='smoking', 
-                     color='sex',
-                     orientation='h', 
-                     title="Distribution of Smoking Status Based On Sex In Heart Failure Patients",
-                     color_discrete_sequence=['#FE251B', '#D3D3D3'])
-
-            fig.update_layout(
-                xaxis_title="Number of Heart Failure Patients",
-                yaxis_title="Smoking Status",
-                barmode='stack',
-                legend_title_text='Sex',
-                yaxis=dict(tickvals=[0, 1], ticktext=['Non-Smoker', 'Smoker'])
-            )
-
-            for i, row in grouped_data.iterrows():
-                fig.add_annotation(
-                    x=row['count'] / 2,
-                    y=row['smoking'],
-                    text=str(row['count']),
-                    showarrow=False,
-                    font=dict(color="black"),
-                    xanchor='center',
-                    yanchor='middle'
-                )
-    
-            st.plotly_chart(fig, use_container_width=True)
-            st.write("""
-                    #### Q4: What is the distribution of smokers versus non-smokers among heart failure patients, and how does it differ by gender?
-                    **A4:** The diagram highlights a significant difference between male and female in smoking habits among heart failure patients, 
-                    with male patients being much more likely to smoke. This is a good insight for conducting targeting prevention and awareness campaigns specifically 
-                    toward reducing smoking among men to help mitigate heart failure risks.
-                     """)
-            
-        with right_column:
-            st.write("## Distribution Based on Comorbidities (Anaemia, Diabetes, High Blood Pressure)")
-            st.write("Explore the distribution of heart failure patients based on the presence of common comorbid conditions.")
-            df.groupby(by=["anaemia", "diabetes", "high_blood_pressure"]).size()
-           
-            grouped_data = df.groupby(by=["anaemia", "diabetes", "high_blood_pressure"]).size().reset_index(name='count')
-            
-            label_mapping = {
-                (0, 0, 0): "No Comorbidity",
-                (1, 0, 0): "Have Anemia",
-                (1, 1, 0): "Have Anemia & Diabetes",
-                (1, 0, 1): "Have Anemia & Hypertension",
-                (0, 1, 0): "Have Diabetes",
-                (0, 1, 1): "Have Diabetes & Hypertension",
-                (0, 0, 1): "Have Hypertension",
-                (1, 1, 1): "Have Anemia, Diabetes & Hypertension",
-            }
-
-            # Create labels for comorbidity status
-            grouped_data['label'] = grouped_data.apply(lambda row: label_mapping[
-                (row['anaemia'], row['diabetes'], row['high_blood_pressure'])], axis=1)
-            grouped_data = grouped_data.sort_values(by='count', ascending=False)
-
-            fig_comorbidities = px.bar(grouped_data, x='count', y='label', orientation='h', 
-                                    title="Distribution of Heart Failure Patients Based on Selected Comorbidities",
-                                    labels={'count': 'Number of Patients', 'label': 'Comorbidity Status'},
-                                    color='count', 
-                                    color_continuous_scale='Reds')
-            st.plotly_chart(fig_comorbidities, use_container_width=True)
-            st.write("""
-                    #### Q5: What is the distribution of different combinations of comorbidities (e.g., anaemia, diabetes, hypertension) among heart failure patients?
-                    **A5:** The diagram reveals that many heart failure patients have no comorbidities (n=67) in the dataset. 
-                    However, a significant number of patients suffer from single or combined conditions, with diabetes and anaemia being the most common conditions. 
-                    From the distribution, it could be suggested that the presence of multiple comorbodities play a role in the death of heart failure patients. Understanding these patterns could be valuable in managing patient outcomes and tailoring treatment approaches.
-                    """)
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
 def show_eda(df):
@@ -774,14 +676,12 @@ def show_eda(df):
     st.markdown("---")
 
     # EDA 
-    eda_option = st.selectbox("Choose analysis option:", [ "Correlation Coefficient","Basic Feature Relationships", "Clustering Analysis"])
+    eda_option = st.selectbox("Choose analysis option:", [ "Correlation Coefficient","Basic Feature Relationships"])
 
     if eda_option == "Correlation Coefficient":
         show_correlation(df)
     elif eda_option == "Basic Feature Relationships":
         basic_feature_relationships(df)
-    elif eda_option == "Clustering Analysis":
-        show_clustering_analysis(df)
 
 def basic_feature_relationships(df):
 
@@ -994,66 +894,6 @@ def basic_feature_relationships(df):
 
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-
-def show_clustering_analysis(df):
-    st.title("Clustering Analysis")
-    st.markdown("In this section, you can select features for clustering and explore patterns in your data.")
-
-    left_column, right_column =st.columns(2)
-    with left_column:
-        feature1 = st.selectbox('Select First Feature for Clustering:', df.columns.tolist())
-    with right_column:
-        feature2 = st.selectbox('Select Second Feature for Clustering:', df.columns.tolist())
-
-    if feature1 == feature2:
-        st.warning("Please select different features for clustering.")
-    else:
-
-        additional_features = st.multiselect("Select Additional Features for Clustering:", df.columns.tolist(), default=[])
-
-        selected_features = [feature1, feature2] + additional_features
-        if len(selected_features) > 0:
-            selected_df = df[selected_features]
-
-            n_clusters = st.slider("Select number of clusters:", min_value=2, max_value=10, value=3)
-
-            kmeans = KMeans(n_clusters=n_clusters)
-            df['Cluster'] = kmeans.fit_predict(selected_df)
-
-
-            if selected_df.shape[1] >= 2:
-                pca = PCA(n_components=2)
-                pca_result = pca.fit_transform(selected_df)
-                fig = px.scatter(x=pca_result[:, 0], y=pca_result[:, 1], color=df['Cluster'].astype(str), title="K-Means Clustering")
-                fig.update_layout(title_x=0.5)
-                st.plotly_chart(fig)
-            else:
-                st.warning("Please select at least two different features for clustering.")
-
-
-            st.subheader(f"Clustering Results with {n_clusters} Clusters")
-
-            selected_cluster = st.selectbox("Select a Cluster to View Details:", range(n_clusters))
-
-            st.write(f"Statistics for Cluster {selected_cluster}")
-            cluster_data = df[df['Cluster'] == selected_cluster][selected_features]
-            st.write(cluster_data.describe())
-
-
-            st.markdown("""
-            The table above shows the statistical summary of the selected features for each cluster. 
-            This includes metrics such as count, mean, standard deviation, minimum, and maximum values.
-            Understanding these statistics can help you identify the characteristics of each cluster and how they differ from one another.
-            """)
-        else:
-            st.warning("Please select at least one feature for clustering.")
-
-        st.markdown("<br>"*3, unsafe_allow_html=True)
-
-
-import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
 
@@ -1145,6 +985,7 @@ import pickle
 import joblib
 import shap
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 def show_model_performance(df):
     
@@ -1154,315 +995,114 @@ def show_model_performance(df):
     # Preparing data
     X = df[all_features] 
     y = df["DEATH_EVENT"]
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)  # Apply standardization
 
-    # Load your pre-trained model from a specified path
-    model_path = 'Web medical dashboard/xgb3_model.pkl'  # Update the path as needed
-    model = joblib.load(model_path)  # Load the model
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, stratify = y, test_size=0.30, random_state=25)
+    
+    model = joblib.load("Web medical dashboard/xgb3_model.pkl")  # Load the model
+    model.fit(X_train, y_train)
 
     # Assuming X_scaled is already defined elsewhere in your code
     # Make predictions
     predictions = model.predict(X)
     predictions_df = pd.DataFrame(predictions, columns=['Predictions'])
-        
     df = pd.concat([df.reset_index(drop=True), predictions_df], axis=1)
 
-    # User selection for evaluation or SHAP
-    analysis_option = st.sidebar.selectbox(
-        "Select Analysis Type:",
-        ("View Predictions", "Model Performance", "SHAP Analysis")
-    )
-
-    if analysis_option == "Model Performance":
-        st.subheader("Model Performance")
-        
-        # Calculate accuracy
-        accuracy = accuracy_score(y, predictions)
-        st.write(f"**Accuracy:** {accuracy:.4f}")
+    st.header("SHAP Analysis")
     
-        left_column,right_column = st.columns(2)
-        with right_column:
-            # Classification Report
-            
-            report = classification_report(y, predictions, output_dict=True)
-            report_df = pd.DataFrame(report).transpose()
-            st.write("### Classification Report")
-            st.markdown("")
-            st.markdown("")
-            st.dataframe(report_df.style.highlight_max(axis=0), use_container_width=True)
-            st.write("""
-            The classification report provides a comprehensive overview of the model's performance across different classes. Here are the key metrics included:
+    y_np = y.values
+    class_labels = np.unique(y_np)
 
-            - **Precision**: This metric indicates the accuracy of positive predictions. It is calculated as the ratio of true positive predictions to the total predicted positives. High precision means that most positive predictions are correct.
+    # Find the index of the positive class
+    positive_class_index = np.where(class_labels == 1)[0]
+    if len(positive_class_index) == 0:
+        st.error("There are no positive labels.")
+    else:
+        positive_class_index = positive_class_index[0]
 
-            - **Recall**: Also known as sensitivity or true positive rate, recall measures the ability of the model to identify all relevant instances. It is calculated as the ratio of true positive predictions to the total actual positives. High recall indicates that the model is good at capturing positive cases.
+    # Initialize SHAP TreeExplainer for XGBoost model
+    explainer = shap.Explainer(model, X_scaled)
+    shap_values = explainer(X_scaled)
 
-            - **F1-Score**: This is the harmonic mean of precision and recall, providing a single score that balances both metrics. It is particularly useful when you want to find an optimal balance between precision and recall. A high F1-score indicates a good balance between precision and recall.
+    # Access the shap values
+    shap_values_array = shap_values.values  
 
-            - **Support**: This indicates the number of actual occurrences of each class in the specified dataset. It helps in understanding the distribution of classes and the relevance of other metrics.
+    # Check the ndim attribute of the SHAP values array
+    if shap_values_array.ndim == 3:
+        shap_values_array = shap_values_array[:, :, positive_class_index]
+    elif shap_values_array.ndim == 1:
+        shap_values_array = shap_values_array.reshape(-1, 1)
 
-            Overall, the classification report is crucial for evaluating the model's effectiveness, especially in cases where class imbalance exists. By analyzing these metrics, we can gain insights into areas for improvement and make informed decisions about model optimization.
-            """)
+    # Ensure SHAP values are 2D
+    if shap_values_array.ndim == 2:
+        feature_importances = np.abs(shap_values_array).mean(axis=0)
+    else:
+        st.error("SHAP values should be 2D.")
 
-        with left_column:
-            # Confusion Matrix
-            
-            conf_matrix = confusion_matrix(y, predictions)
-            fig = px.imshow(
-                conf_matrix, 
-                text_auto=True, 
-                color_continuous_scale="Blues",
-                labels={'color': 'Count'},
-                aspect="auto"
-            )
-            fig.update_layout(
-                title = "Confusion Matrix",
-                xaxis_title='Predicted Label', 
-                yaxis_title='True Label',
-                title_font=dict(size=20, color='black'),
-                xaxis=dict(tickmode='linear'),
-                yaxis=dict(tickmode='linear')
-            )
-            st.plotly_chart(fig, use_container_width=True)
-            st.write("""
-            The confusion matrix provides a visual representation of the performance of the classification model. It summarizes the counts of true positive, true negative, false positive, and false negative predictions.
+    # Sort the feature importances
+    sorted_indices = np.argsort(feature_importances)[::-1]
+    sorted_feature_names = [all_features[i] for i in sorted_indices]
 
-            - **True Positive (TP)**: The number of instances correctly predicted as positive.
-            - **True Negative (TN)**: The number of instances correctly predicted as negative.
-            - **False Positive (FP)**: The number of instances incorrectly predicted as positive (also known as Type I error).
-            - **False Negative (FN)**: The number of instances incorrectly predicted as negative (also known as Type II error).
+    # Display SHAP analysis in Streamlit
+    left_column, right_column = st.columns(2)
 
-            From the confusion matrix, you can also derive several important metrics:
-            - **Accuracy**: \\((TP + TN) / (TP + TN + FP + FN)\\) - Overall correctness of the model.
-        - **Precision**: \\(TP / (TP + FP)\\) - How many of the predicted positives are actually positive.
-        - **Recall**: \\(TP / (TP + FN)\\) - How many of the actual positives were correctly identified.
-        - **F1-Score**: The harmonic mean of precision and recall.
+    with left_column:
+        st.subheader("Summary Plot")
+        X_scaled_df = pd.DataFrame(X_scaled, columns=all_features)
+        shap.summary_plot(shap_values_array, X_scaled_df, feature_names=all_features, show=False)
+        st.pyplot(plt)
 
-            The confusion matrix is a powerful tool for understanding the strengths and weaknesses of the classification model, helping to identify specific areas where the model may need improvement. By analyzing the counts, we can gain insights into class-specific performance and potential biases in the model.
-            """)
-            st.markdown("<br>"*3, unsafe_allow_html=True)
+    with right_column:
+        st.subheader("Feature Importance from SHAP")
+        shap_importance_df = pd.DataFrame({
+            "Feature": sorted_feature_names,
+            "Importance": feature_importances[sorted_indices]
+        })
 
-    elif analysis_option == "SHAP Analysis":
-        st.header("SHAP Analysis")
+        fig = px.bar(
+            shap_importance_df,
+            x="Importance",
+            y="Feature",
+            orientation="h",
+            text="Importance", 
+        )
+        fig.update_layout(
+            yaxis=dict(
+                categoryorder="total ascending",
+                showgrid=True 
+            ),
+            xaxis=dict(
+                title="Feature Importance",
+                showgrid=True,  
+                gridcolor="lightgray" 
+            ),
+            font=dict(size=16),  
+            plot_bgcolor='white',  
+            width=900,  
+            height=500  
+        )
+        fig.update_traces(
+            marker_color="#00BFFF",  
+            texttemplate="%{text:.4f}", 
+            textposition="auto"  
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Conclusion on Derived Insights
+    st.subheader("Conclusions from SHAP Analysis")
+    st.write("""
+        The SHAP analysis provides clear insights into how each feature contributes to the model's predictions. 
+        Features with higher SHAP values indicate a stronger influence on the predicted outcome. For example, 
+        if 'Feature A' consistently shows high importance, it suggests that variations in 'Feature A' significantly 
+        affect the likelihood of a patient being classified as high risk. 
         
-        X_scaled_np = np.array(X)
-        y_np = y.values
-        X_sample = shap.sample(X_scaled_np, 50)
-        class_labels = np.unique(y_np)
-
-        positive_class_index = np.where(class_labels == 1)[0]
-        if len(positive_class_index) == 0:
-            st.error("There is no positive labels.")
-            return
-        else:
-            positive_class_index = positive_class_index[0]
-
-        # SHAP explainer and shap_values determination
-        if model.__class__.__name__ in ["RandomForestClassifier", "DecisionTreeClassifier"]:
-            explainer = shap.TreeExplainer(model)
-            shap_values = explainer.shap_values(X_scaled_np)
-
-            if isinstance(shap_values, list):
-                shap_values = shap_values[positive_class_index]
-
-        elif model.__class__.__name__ == "LogisticRegression":
-            explainer = shap.LinearExplainer(model, X_sample)
-            shap_values = explainer.shap_values(X_scaled_np)
-
-        else:
-            explainer = shap.KernelExplainer(model.predict_proba, X_sample)
-            shap_values = explainer.shap_values(X_scaled_np)
-
-        if shap_values.ndim == 3:
-            shap_values = shap_values[:, :, positive_class_index]
-        elif shap_values.ndim == 1:
-            shap_values = shap_values.reshape(-1, 1)
-
-        if shap_values.ndim == 2:
-            feature_importances = np.abs(shap_values).mean(axis=0)
-        else:
-            st.error("SHAP values should be 2D.")
-            return
-
-        sorted_indices = np.argsort(feature_importances)[::-1]
-        sorted_feature_names = [all_features[i] for i in sorted_indices]
-        
-        left_column, right_column = st.columns(2)
-        with left_column:
-            # SHAP Summary Plot
-            st.subheader("Summary Plot")
-            st.markdown("")
-            st.markdown("")
-            shap.summary_plot(shap_values, X_scaled_np, feature_names=sorted_feature_names)
-            st.pyplot(plt)
-        
-        with right_column:
-            # Feature Importance from SHAP
-            st.subheader("Feature Importance from SHAP")
-            shap_importance_df = pd.DataFrame({
-                "Feature": sorted_feature_names,
-                "Importance": feature_importances[sorted_indices]
-            })
-
-            fig = px.bar(
-                shap_importance_df,
-                x="Importance",
-                y="Feature",
-                orientation="h",
-                text="Importance", 
-            )
-            fig.update_layout(
-                yaxis=dict(
-                    categoryorder="total ascending",
-                    showgrid=True 
-                ),
-                xaxis=dict(
-                    title="Feature Importance",
-                    showgrid=True,  
-                    gridcolor="lightgray" 
-                ),
-                font=dict(size=16),  
-                plot_bgcolor='white',  
-                width=900,  
-                height=500  
-            )
-            fig.update_traces(
-                marker_color="#00BFFF",  
-                texttemplate="%{text:.4f}", 
-                textposition="auto"  
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-        # Conclusion on Derived Insights
-        st.subheader("Conclusions from SHAP Analysis")
-        st.write("""
-            The SHAP analysis provides clear insights into how each feature contributes to the model's predictions. 
-            Features with higher SHAP values indicate a stronger influence on the predicted outcome. For example, 
-            if 'Feature A' consistently shows high importance, it suggests that variations in 'Feature A' significantly 
-            affect the likelihood of a patient being classified as high risk. 
-            
-            By understanding these relationships, we can validate the model's decision-making process and ensure 
-            that derived conclusions from the predictions align with domain knowledge and clinical expectations. 
-            This transparency is critical for clinical applications, where understanding the underlying reasons for predictions 
-            can guide effective interventions and improve patient outcomes.
-        """)
-        st.markdown("<br>"*3, unsafe_allow_html=True)
-
-    elif analysis_option == "View Predictions":
-
-        st.subheader("Data with Predictions")
-        st.dataframe(df)  
-        # Ensure patient index is within the valid range
-        max_index = len(df) - 1
-        patient_index = st.number_input("Enter Patient Index:", min_value=0, max_value=max_index, step=1)
-
-        if 0 <= patient_index <= max_index:
-            # Extract prediction for the selected patient index
-            pred = df.loc[patient_index, 'Predictions']
-            
-            # Generate recommendation based on the prediction
-            if pred == 1:
-                recommendation = "Patient is at high risk of death. Immediate intervention is advised."
-            else:
-                recommendation = "Patient is at low risk of death. Regular monitoring is recommended."
-
-            # Display Patient Information
-            st.markdown(f"""
-            <div style="
-                background-color: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                padding: 20px;
-                margin-bottom: 20px;
-                color: #333;
-                border: 1px solid #ddd;
-                max-width: 900px;
-            ">   
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 10px;
-                ">
-                    <h2 style="
-                        margin: 0;
-                        font-size: 22px;
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
-                        padding-bottom: 15px;
-                        flex: 1;
-                    ">
-                        Patient Index:{patient_index}
-                    </h2>
-                    <h2 style="
-                        margin: 0;
-                        font-size: 22px;
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
-                        padding-bottom: 15px;
-                        flex: 1;
-                        text-align: right;
-                    ">
-                        Model: {model}
-                    </h2>
-                </div>
-                <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
-                    font-weight: bold;
-                ">
-                    Prediction: 
-                    <span style="
-                        font-weight: bold;
-                        color: {'#e74c3c' if pred == 1 else '#27ae60'};
-                    ">
-                        {'High Risk' if pred == 1 else 'Low Risk'}
-                    </span>
-                </p>
-                <p style="
-                    font-size: 20px;
-                    margin: 10px 0;
-                    font-weight: bold;
-                ">
-                    Recommendation: 
-                    <span style="
-                        color: #2980b9;
-                        background-color: #ecf0f1;
-                        border-radius: 5px;
-                        padding: 5px 10px;
-                    ">
-                        {recommendation}
-                    </span>
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.write("""
-        In this section, you can view the model's predictions for individual patients. By selecting a patient index, 
-        you can see whether the model has classified the patient as high or low risk based on the available data.
-        
-        **High Risk Prediction**: The model predicts that the patient is at high risk, suggesting that immediate intervention may be necessary.
-        
-        **Low Risk Prediction**: The model predicts a low risk for the patient, implying that regular monitoring should suffice for now.
-        
-        This tool is useful for identifying and understanding individual predictions and how the model assesses risk. Additionally, based on the prediction, a recommendation is generated to guide further actions for the patient.
-            """)
-        
-        # Create an Excel file with patient data and recommendations
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, sheet_name='Patient Data', index=False)
-            # Write recommendations in a separate sheet
-            recommendations_df = pd.DataFrame({
-                'Patient Index': [patient_index],
-                'Prediction': [pred],
-                'Recommendation': [recommendation]
-            })
-            recommendations_df.to_excel(writer, sheet_name='Recommendations', index=False)
-        st.download_button(label="Download Patient Data and Predictions as Excel",
-                            data=output.getvalue(),
-                            file_name=f"{model}_patient_data_and_predictions.xlsx",
-                            mime="application/vnd.ms-excel")
-        st.markdown("<br>"*3, unsafe_allow_html=True)
+        By understanding these relationships, we can validate the model's decision-making process and ensure 
+        that derived conclusions from the predictions align with domain knowledge and clinical expectations. 
+        This transparency is critical for clinical applications, where understanding the underlying reasons for predictions 
+        can guide effective interventions and improve patient outcomes.
+    """)
+    st.markdown("<br>"*3, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
