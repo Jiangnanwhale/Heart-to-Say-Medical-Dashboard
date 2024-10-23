@@ -927,7 +927,7 @@ def show_model_performance(df):
         </ul>
         <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-top: 20px; margin-bottom: 10px;">Insights:</h3>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555;">
-            The plots suggests that <span style="color: red;"><strong>{top_contributions.iloc[0]['Feature']}</strong></span> had the <strong>greatest impact on the model output</strong>, followed by <span style="color: red;"><strong>{top_contributions.iloc[1]['Feature']}</strong></span> and <span style="color: red;"><strong>{top_contributions.iloc[2]['Feature']}</strong></span>.
+            The plots suggest that <span style="color: red;"><strong>{top_contributions.iloc[0]['Feature']}</strong></span> had the <strong>greatest impact on the model output</strong>, followed by <span style="color: red;"><strong>{top_contributions.iloc[1]['Feature']}</strong></span> and <span style="color: red;"><strong>{top_contributions.iloc[2]['Feature']}</strong></span>.
         </p>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555; margin-top: 20px;">
             Understanding these contributions is vital for interpreting the model's behavior and making informed decisions based on the predictions.
