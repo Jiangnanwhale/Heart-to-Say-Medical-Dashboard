@@ -270,12 +270,12 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Descriptive analytics", "Heart Failures Factors Correlation","Predictive analytics", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Overview of Patients", "Heart Failures Factors Correlation","Predictive analytics", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={'time': 'follow-up days'}, inplace=True)
 
-    if option == "Descriptive analytics":
+    if option == "Overview of Patients":
         show_data_overview(df)
     elif option == "Heart Failures Factors Correlation":
         show_eda(df)
@@ -580,7 +580,7 @@ def show_data_overview(df):
 
     with col1:
         st.markdown(card_style.format(bg_color="#2ca02c", title="Total Records", value=total_records,
-                                  description="This represents the total number of patient records in the dataset."), unsafe_allow_html=True)
+                                  description="This represents the total number of patient records."), unsafe_allow_html=True)
 
     with col2:
         st.markdown(card_style.format(bg_color="#ff0000", title="Death Cases", value=positive_cases,
@@ -623,7 +623,7 @@ def show_data_overview(df):
         else:
             label_map = {
                 0: f"No {selected_column}",
-                1: f"{selected_column} Occurred"
+                1: f"{selected_column}"
             }
         count_data[selected_column] = count_data[selected_column].map(label_map)
 
@@ -714,7 +714,7 @@ def show_correlation(df):
             """,
             unsafe_allow_html=True
         )
-        selected_feature = st.selectbox("Select a feature to view its correlation with the target variable:", selected_features,
+        selected_feature = st.selectbox("Select a factor to view its correlation with mortality risk:", selected_features,
                                     index=selected_features.index("diabetes"))
     with col2:
         if len(selected_features) > 0:
@@ -784,7 +784,7 @@ def show_correlation(df):
                 </div>
                 """, unsafe_allow_html=True
             )
-
+    st.markdown("")
         
     if len(selected_features) > 0:
 
@@ -809,19 +809,18 @@ def show_correlation(df):
         )
 
         st.plotly_chart(fig, use_container_width=True)
-
+       
     else:
         st.warning("Please select at least one feature for correlation analysis.")
-
+    
+    st.write("hahahah")
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
 import pandas as pd
 import streamlit as st
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
-from sklearn.metrics import accuracy_score, roc_auc_score, classification_report, confusion_matrix
+from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 import io
-import pickle
 import joblib
 import shap
 import matplotlib.pyplot as plt
@@ -839,19 +838,24 @@ def show_model_performance(df):
     X_scaled = scaler.fit_transform(X)  # Apply standardization
 
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, stratify = y, test_size=0.30, random_state=25)
-    
-    model = joblib.load("Web medical dashboard/xgb3_model.pkl")  # Load the model
-    model.fit(X_train, y_train)
 
-    # Assuming X_scaled is already defined elsewhere in your code
+    model = joblib.load("Web medical dashboard/xgb3_model.pkl")
+    model.fit(X_train, y_train)
     # Make predictions
-    predictions = model.predict(X)
-    predictions_df = pd.DataFrame(predictions, columns=['Predictions'])
-    df = pd.concat([df.reset_index(drop=True), predictions_df], axis=1)
+    predictions = model.predict(X_test)
+    
+    # Create a DataFrame for SHAP analysis
+    X_test_df = pd.DataFrame(X_test, columns=all_features)
+    X_test_df['Predictions'] = predictions
+    X_test_reduced = X_test_df.iloc[:, :12] 
+
+    # SHAP analysis
+    explainer = shap.Explainer(model, X_scaled)
+    shap_values = explainer(X_test_reduced)
 
     st.header("SHAP Analysis")
-    
-    y_np = y.values
+
+    y_np = y_test.values
     class_labels = np.unique(y_np)
 
     # Find the index of the positive class
@@ -861,38 +865,33 @@ def show_model_performance(df):
     else:
         positive_class_index = positive_class_index[0]
 
-    # Initialize SHAP TreeExplainer for XGBoost model
-    explainer = shap.Explainer(model, X_scaled)
-    shap_values = explainer(X_scaled)
+    # Check the shape of SHAP values
+    if isinstance(shap_values, np.ndarray):
+        shap_values_array = shap_values  
+    else:
+        shap_values_array = shap_values.values  
 
-    # Access the shap values
-    shap_values_array = shap_values.values  
-
-    # Check the ndim attribute of the SHAP values array
-    if shap_values_array.ndim == 3:
-        shap_values_array = shap_values_array[:, :, positive_class_index]
+    if shap_values_array.ndim == 3:  # If it's a 3D array
+        shap_values_array = shap_values_array[:, :, 1]  # Focus on positive class if applicable
     elif shap_values_array.ndim == 1:
         shap_values_array = shap_values_array.reshape(-1, 1)
+    # Access the SHAP values
+    shap_values_array = shap_values.values
 
-    # Ensure SHAP values are 2D
-    if shap_values_array.ndim == 2:
-        feature_importances = np.abs(shap_values_array).mean(axis=0)
-    else:
-        st.error("SHAP values should be 2D.")
-
-    # Sort the feature importances
+    # Feature importances
+    feature_importances = np.abs(shap_values_array).mean(axis=0)
     sorted_indices = np.argsort(feature_importances)[::-1]
     sorted_feature_names = [all_features[i] for i in sorted_indices]
 
-    # Display SHAP analysis in Streamlit
     left_column, right_column = st.columns(2)
 
+    # SHAP Summary Plot
     with left_column:
         st.subheader("Summary Plot")
-        X_scaled_df = pd.DataFrame(X_scaled, columns=all_features)
-        shap.summary_plot(shap_values_array, X_scaled_df, feature_names=all_features, show=False)
+        shap.summary_plot(shap_values_array, X_test_reduced, feature_names=all_features, show=False)
         st.pyplot(plt)
-
+        
+    # Feature Importance Bar Plot
     with right_column:
         st.subheader("Feature Importance from SHAP")
         shap_importance_df = pd.DataFrame({
@@ -905,7 +904,7 @@ def show_model_performance(df):
             x="Importance",
             y="Feature",
             orientation="h",
-            text="Importance", 
+            text="Importance",
         )
         fig.update_layout(
             yaxis=dict(
@@ -929,21 +928,42 @@ def show_model_performance(df):
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    # Conclusion on Derived Insights
-    st.subheader("Conclusions from SHAP Analysis")
-    st.write("""
-        The SHAP analysis provides clear insights into how each feature contributes to the model's predictions. 
-        Features with higher SHAP values indicate a stronger influence on the predicted outcome. For example, 
-        if 'Feature A' consistently shows high importance, it suggests that variations in 'Feature A' significantly 
-        affect the likelihood of a patient being classified as high risk. 
-        
-        By understanding these relationships, we can validate the model's decision-making process and ensure 
-        that derived conclusions from the predictions align with domain knowledge and clinical expectations. 
-        This transparency is critical for clinical applications, where understanding the underlying reasons for predictions 
-        can guide effective interventions and improve patient outcomes.
-    """)
-    st.markdown("<br>"*3, unsafe_allow_html=True)
+    # Create a summary card to display SHAP analysis results 
+    top_contributions = shap_importance_df.nlargest(3, 'Importance')
 
+    shap_summary = f"""
+    <div style="background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">
+        <h2 style="color: #2c3e50; font-family: 'Arial', sans-serif; margin-bottom: 15px;">SHAP Analysis Results Summary</h2>
+        <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #34495e; margin-bottom: 20px;">
+            The SHAP analysis provides crucial insights into how individual features influence the model's predictions regarding mortality risk.
+        </p>
+        <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Key Important Factors:</h3>
+        <ul style="font-family: 'Arial', sans-serif; color: #444; list-style-type: circle; padding-left: 20px;">
+            {"".join(f"<li style='margin-bottom: 5px;'><strong>{row['Feature']}</strong>: Importance Score = {row['Importance']:.4f}</li>" for _, row in top_contributions.iterrows())}
+        </ul>
+        <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-top: 20px; margin-bottom: 10px;">Insights:</h3>
+        <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555;">
+            The plot suggests that <span style="color: red;"><strong>{top_contributions.iloc[0]['Feature']}</strong></span> had the <strong>greatest impact on the model output</strong>, followed by <span style="color: red;"><strong>{top_contributions.iloc[1]['Feature']}</strong></span> and <span style="color: red;"><strong>{top_contributions.iloc[2]['Feature']}</strong></span>.
+        </p>
+        <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555; margin-top: 20px;">
+            Understanding these contributions is vital for interpreting the model's behavior and making informed decisions based on the predictions.
+        </p>
+    </div>
+    """
+
+    # Hover effect to scale up the card
+    style = """
+    <style>
+        div:hover {
+            transform: scale(1.02);
+        }
+    </style>
+    """
+
+    st.markdown(shap_summary, unsafe_allow_html=True)
+
+    st.markdown("<br>"*3, unsafe_allow_html=True)
+    
 
 if __name__ == "__main__":
     show_dashboard()
