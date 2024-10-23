@@ -813,7 +813,6 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-import xgboost as xgb
 
 def show_model_performance(df):
     
