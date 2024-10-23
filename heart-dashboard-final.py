@@ -832,13 +832,7 @@ def show_model_performance(df):
     model.fit(X_train, y_train)
     # Make predictions
     predictions = model.predict(X_test)
-    model_path = "./xgb3_model.pkl"
-    if os.path.exists(model_path):
-        model = joblib.load(model_path)
-        st.write("Model loaded successfully")
-    else:
-        st.write(f"Model file not found at: {model_path}")
-
+   
     # Create a DataFrame for SHAP analysis
     X_test_df = pd.DataFrame(X_test, columns=all_features)
     X_test_df['Predictions'] = predictions
