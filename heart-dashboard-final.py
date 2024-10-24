@@ -593,7 +593,7 @@ def show_data_overview(df):
         
     with left_column:
     
-        selected_column = st.selectbox("Select a factor to visualize from the following options: diabetes, anaemia, hypertension, sex, smoking, mortality.)", categorical_features,
+        selected_column = st.selectbox("Select a factor to visualize from the following options: diabetes, anaemia, hypertension, sex, smoking, mortality.", categorical_features,
                                        index=categorical_features.index('diabetes'))
         if 'mortality' in categorical_features:
             categorical_features.remove('mortality')
@@ -640,7 +640,7 @@ def show_data_overview(df):
 
         with right_column:
 
-            selected_column = st.selectbox("Select a factor to visualize from the following options: age, creatinine phosphookianse, ejection fraction, platelets, serum creatinine, serum sodium, follow-up days", numerical_features)
+            selected_column = st.selectbox("Select a factor to visualize from the following options: age, creatinine phosphookianse, ejection fraction, platelets, serum creatinine, serum sodium, follow-up days.", numerical_features)
             if 'mortality' in numerical_features:
                 numerical_features.remove('mortality')
 
