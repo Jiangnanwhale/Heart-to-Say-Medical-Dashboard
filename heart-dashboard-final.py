@@ -8,7 +8,6 @@ from PIL import Image
 import warnings
 warnings.filterwarnings('ignore')
 
-import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import joblib
 import shap
