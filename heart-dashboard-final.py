@@ -857,8 +857,7 @@ def show_model_performance(df):
     # Create a DataFrame for SHAP analysis
     X_test_df = pd.DataFrame(X_test, columns=all_features)
     X_test_df['Predictions'] = predictions
-    X_test_sampled = X_test_df.sample(n=50, random_state=25)
-    X_test_reduced = X_test_sampled.iloc[:, :-1] 
+    X_test_reduced = X_test_df.iloc[:, :-1] 
 
     # SHAP analysis
     explainer = shap.Explainer(model, X_scaled)
