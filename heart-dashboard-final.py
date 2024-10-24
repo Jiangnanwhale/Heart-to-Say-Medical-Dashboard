@@ -208,7 +208,7 @@ def resize_image(image, width):
 def show_contact_us():
     st.title("📞 Contact Us")
     st.markdown("""
-    For any inquiries or support, please reach out to us at:
+    **For any inquiries or support, please reach out to us at:**
     
     **Email**: heart_to_say_team@dsv.su.se
                 
@@ -235,20 +235,19 @@ def show_contact_us():
     **Design Process**: 
     1. Team Rules: Document, Paper prototype
     2. Project Charter: Document, Digital prototype and Preprocessing dataset
-    3. Text Mining: Jupyter notebook and Report
-    4. Project Delivery: Web medical dashboard, Video showcase and Final project report.      
+    3. Project Delivery: Web medical dashboard, Video showcase and Final project report.      
                 
     **References**:  
     1. Chicco D, Jurman G. Machine learning can predict survival of patients with heart failure from serum creatinine and ejection fraction alone. BMC Med Inform Decis Mak. 2020 Feb 3;20(1):16.  
-    2. Kaggle. Heart Failure Prediction [Internet]. San Francisco, CA: Kaggle; [date unknown]. [cited 2024 Sep 11]. Available from: https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data  
+    2. Kaggle. Heart Failure Prediction [Internet]. San Francisco, CA: Kaggle; [date unknown]. [cited 2024 Sep 11]. Available from: https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data. 
     3. Joseph P, Roy A, Lonn E, Störk S, Floras J, Mielniczuk L, et al. Global Variations in Heart Failure Etiology, Management, and Outcomes. JAMA. 2023 May 16;329(19):1650-1661.
     4. Regitz-Zagrosek V. Sex and Gender Differences in Heart Failure. Int J Heart Fail. 2020 Apr 13;2(3):157-81.
     5. Donzé JD, Beeler PE, Bates DW. Impact of Hyponatremia Correction on the Risk for 30-Day Readmission and Death in Patients with Congestive Heart Failure. Am J Med. 2016 Aug;129(8):836-42.
     6. Stewart S, Playford D, Scalia GM, Currie P, Celermajer DS, Prior D, Codde J, Strange G; NEDA Investigators. Ejection fraction and mortality: a nationwide register-based cohort study of 499 153 women and men. Eur J Heart Fail. 2021 Mar;23(3):406-416.
     7. Zhong J, Gao J, Luo JC, Zheng JL, Tu GW, Xue Y. Serum creatinine as a predictor of mortality in patients readmitted to the intensive care unit after cardiac surgery: a retrospective cohort study in China. J Thorac Dis. 2021 Mar;13(3):1728-1736.
     8. Metra M, Cotter G, Gheorghiade M, Dei Cas L, Voors AA. The role of the kidney in heart failure. Eur Heart J. 2012 Sep;33(17):2135-42.
-    9. Mayo Clinic. Creatinine test [Internet]. Rochester, MN: Mayo Foundation for Medical Education and Research; 2022 [cited 2024 Oct 19]. Available from: https://www.mayoclinic.org/tests-procedures/creatinine-test/about/pac-20384646
-    10. British Heart Foundation. Heart failure [Internet]. London: British Heart Foundation; 2024 [cited 2024 Oct 19]. Available from: https://www.bhf.org.uk/informationsupport/conditions/heart-failure            
+    9. Mayo Clinic. Creatinine test [Internet]. Rochester, MN: Mayo Foundation for Medical Education and Research; 2022 [cited 2024 Oct 19]. Available from: https://www.mayoclinic.org/tests-procedures/creatinine-test/about/pac-20384646.
+    10. British Heart Foundation. Heart failure [Internet]. London: British Heart Foundation; 2024 [cited 2024 Oct 19]. Available from: https://www.bhf.org.uk/informationsupport/conditions/heart-failure.          
 
     **Got some thoughts or suggestions? Don't hesitate to reach out to us. We'd love to hear from you!**
     """)
@@ -632,11 +631,43 @@ def show_data_overview(df):
         conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category. " 
         st.write(conclusion_text)
 
-        fig_feature_2 = px.histogram(df, x=selected_column, color='mortality', barmode='group',
-                    color_discrete_map={0: '#808080', 1: '#ff0000'},
-                    title=f'Distribution of {selected_column} vs Death Event' )
-        fig_feature_2.for_each_trace(lambda t: t.update(name='Survived' if t.name == '0' else 'Death occured'))
+        df_copy = df.copy()   
+        df_copy[selected_column] = df_copy[selected_column].map(label_map)
+        fig_feature_2 = px.histogram(
+            df,
+            x=selected_column,
+            color='mortality',
+            barmode='group',
+            color_discrete_map={0: '#808080', 1: '#ff0000'},
+            title=f'Distribution of {selected_column} vs Death Event'
+        )
+
+        def update_trace_names(trace):
+            if trace.name == '0':
+                trace.update(name='Survived')
+            else:
+                trace.update(name='Death occurred')
+
+        fig_feature_2.for_each_trace(update_trace_names)
+
+        if selected_column == 'sex':
+            x_label_map = {0: 'Female', 1: 'Male'}
+        else:
+            x_label_map = {
+                0: f'No {selected_column}', 
+                1: f'{selected_column}'
+            }
+
+        fig_feature_2.update_xaxes(
+            title=selected_column,
+            tickvals=[0, 1],  
+            ticktext=[x_label_map[0], x_label_map[1]],  
+            tickmode='array' 
+        )
+
         st.plotly_chart(fig_feature_2, use_container_width=True)
+
+
 
         with right_column:
 
@@ -826,8 +857,7 @@ def show_model_performance(df):
     # Create a DataFrame for SHAP analysis
     X_test_df = pd.DataFrame(X_test, columns=all_features)
     X_test_df['Predictions'] = predictions
-    X_test_sampled = X_test_df.sample(n=50, random_state=25)
-    X_test_reduced = X_test_sampled.iloc[:, :-1] 
+    X_test_reduced = X_test_df.iloc[:, :-1] 
 
     # SHAP analysis
     explainer = shap.Explainer(model, X_scaled)
