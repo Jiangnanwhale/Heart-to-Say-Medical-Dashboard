@@ -799,7 +799,7 @@ def show_correlation(df):
     else:
         st.warning("Please select at least one feature for correlation analysis.")
     
-    st.write("The heat map illustrates the correlation between cardiovascular disease-related data features, revealing a positive correlation between serum creatinine and mortality, as well as between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibit a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
+    st.write("The heat map illustrates the correlation between cardiovascular disease-related data features. It reveals a positive correlation between serum creatinine and mortality and between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibits a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
 
