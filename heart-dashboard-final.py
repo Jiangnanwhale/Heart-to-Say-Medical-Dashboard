@@ -319,7 +319,7 @@ def show_home():
             """
             - **🏠 Home**: 
               Provides an overview of the dashboard's functionality.
-            - **📊 Descriptive Analytics**: 
+            - **📊 Overview of Patients**: 
               Explore heart failure patient data, enabling healthcare professionals to view trends and prevalence based on:
               - Age and gender
               - Smoking status
@@ -331,9 +331,9 @@ def show_home():
     with col2:
         st.markdown(
             """
-            - **🔍 Diagnostic Analytics**: 
+            - **🔍 Factors Correlation**: 
               Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview.
-            - **🤖 Predictive Analytics**: 
+            - **🤖 Mortality Risk Prediction**: 
               Input patient data on heart failure risk factors to predict the risk level of mortality.
             - **📞 Contact Us**: 
               Get in touch for more information about the project, our team, and how to reach us.
@@ -826,7 +826,8 @@ def show_model_performance(df):
     # Create a DataFrame for SHAP analysis
     X_test_df = pd.DataFrame(X_test, columns=all_features)
     X_test_df['Predictions'] = predictions
-    X_test_reduced = X_test_df.iloc[:, :12] 
+    X_test_sampled = X_test_df.sample(n=50, random_state=25)
+    X_test_reduced = X_test_sampled.iloc[:, :-1] 
 
     # SHAP analysis
     explainer = shap.Explainer(model, X_scaled)
