@@ -336,7 +336,7 @@ def show_home():
             - **🤖 Mortality Risk Prediction**: 
               Input patient data on heart failure risk factors to predict the risk level of mortality.
             - **📞 Contact Us**: 
-              Get in touch for more information about the project, our team, and how to reach us.
+              Get in touch for more information about project, our team, and how to reach us.
             """
         )
     
@@ -868,6 +868,7 @@ def show_model_performance(df):
     # SHAP Summary Plot
     with left_column:
         st.subheader("Summary Plot")
+        st.markdown("")
         shap.summary_plot(shap_values_array, X_test_reduced, feature_names=all_features, show=False)
         st.pyplot(plt)
         
