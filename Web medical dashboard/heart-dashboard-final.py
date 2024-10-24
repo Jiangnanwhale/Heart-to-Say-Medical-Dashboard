@@ -1,16 +1,20 @@
 ## "pip install -r requirements.txt" in terminal first##
 
-import streamlit as st
 import os
-import io
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 from PIL import Image
-import plotly.graph_objects as go
 import warnings
-from sklearn.cluster import KMeans
 warnings.filterwarnings('ignore')
+
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+import joblib
+import shap
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 # Streamlit page configuration
 st.set_page_config(page_title="Heart to Say", 
@@ -798,15 +802,6 @@ def show_correlation(df):
     st.write("The heat map illustrates the correlation between cardiovascular disease-related data features, revealing a positive correlation between serum creatinine and mortality, as well as between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibit a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
     st.markdown("<br>"*3, unsafe_allow_html=True)
 
-import pandas as pd
-import streamlit as st
-from sklearn.preprocessing import StandardScaler
-import plotly.express as px
-import io
-import joblib
-import shap
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 
 def show_model_performance(df):
     
