@@ -308,12 +308,16 @@ def show_home():
     
     st.markdown(
         """
-        **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
-        By utilizing patient data and advanced analytics, we aim to provide insights for better clinical decision-making.
+        **This dashboard supports physicians in predicting the risk of mortality due to heart failure.**
         """
     )
     
-    st.markdown("### Dashboard Features")
+    st.markdown(
+        """We aim to provide insights for better clinical decision-making by utilising patient data and advanced analytics."""
+    )
+
+
+    st.markdown("### The Dashboard Features")
     col1, col2 = st.columns(2)
     
     with col1:
