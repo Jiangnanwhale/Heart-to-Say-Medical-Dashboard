@@ -326,7 +326,7 @@ def show_home():
             - **🏠 Home**: 
               Provides an overview of the dashboard's functionality.
             - **📊 Descriptive Analytics**: 
-              Explore heart failure patient data, enabling healthcare professionals to view trends and prevalence based on:
+              Explore heart failure patients' data, enabling healthcare professionals to view trends and prevalence based on:
               - Age and gender
               - Smoking status
               - Comorbidities
