@@ -230,7 +230,7 @@ def show_contact_us():
                 
     **Problem Description**: 
                 
-    The Heart to Say project aims to build a web-based medical dashboard that supports physicians to predict the risk of mortality due to heart failure. Physicians will be able to reassess treatment plans, explore alternative therapies, and closely monitor patients to help mitigate the risk of mortality. Prescriptive analytics will be used on patient data to help physicians identify specific factors contributing to elevated mortality risk. Thus, it will provide recommendations based on existing medical guidelines to guide in clinical decision-making on an individual basis for prevention and/or mitigation of mortality due to heart failure.           
+    The Heart to Say project aims to build a web-based medical dashboard that supports physicians in predicting the risk of mortality due to heart failure. Physicians can reassess treatment plans, explore alternative therapies, and closely monitor patients to help mitigate mortality risk. Prescriptive analytics will be used on patient data to help physicians identify specific factors contributing to elevated mortality risk. Thus, it will provide recommendations based on existing medical guidelines to guide clinical decision-making individually for the prevention and/or mitigation of mortality due to heart failure. 
     
     **Design Process**: 
     1. Team Rules: Document, Paper prototype
@@ -306,11 +306,16 @@ def show_home():
     st.markdown(
         """
         **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
-        By utilizing patient data and advanced analytics, we aim to provide insights for better clinical decision-making.
         """
     )
     
     st.markdown("### Dashboard Features")
+    st.markdown(
+        """We aim to provide insights for better clinical decision-making by utilising patient data and advanced analytics."""
+    )
+
+
+    st.markdown("### The Dashboard Features")
     col1, col2 = st.columns(2)
     
     with col1:
@@ -319,7 +324,7 @@ def show_home():
             - **🏠 Home**: 
               Provides an overview of the dashboard's functionality.
             - **📊 Overview of Patients**: 
-              Explore heart failure patient data, enabling healthcare professionals to view trends and prevalence based on:
+              Explore heart failure patient's data, enabling healthcare professionals to view trends and prevalence based on:
               - Age and gender
               - Smoking status
               - Comorbidities
