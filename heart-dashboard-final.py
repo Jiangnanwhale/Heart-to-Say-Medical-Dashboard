@@ -716,8 +716,6 @@ def show_eda(df):
     st.markdown("---")
     show_correlation(df)
 
-import plotly.figure_factory as ff
-import seaborn as sns
 def show_correlation(df):
 
     st.subheader("Correlation Matrix")
