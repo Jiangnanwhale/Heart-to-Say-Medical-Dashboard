@@ -855,7 +855,7 @@ import pandas as pd
 
 def show_clustering_analysis(df):
     st.title("Group Identification")
-    st.markdown("In this section, you can choose specific patient characteristics to help identify patient characteristics using our clustering analysis.")
+    st.markdown("In this section, you can choose specific factors to help identify patient characteristics using our clustering analysis.")
 
     allowed_features = [
                     "age",
