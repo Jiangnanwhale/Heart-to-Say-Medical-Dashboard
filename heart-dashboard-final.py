@@ -929,8 +929,7 @@ def show_clustering_analysis(df):
                     with st.expander(f"**Cluster {row['Cluster']} Overview**"):
                         # Show more details about the cluster
                         cluster_data = df[df['Cluster'] == row['Cluster']]
-                        
-                        st.write("### Cluster Overview:")
+                    
                         st.write(f"<span style='color: #007bff;'><strong>Total Members in Cluster:</strong> {len(cluster_data)}</span>", unsafe_allow_html=True)
                         # Display additional insights
                         st.write("### Key Insights:")
