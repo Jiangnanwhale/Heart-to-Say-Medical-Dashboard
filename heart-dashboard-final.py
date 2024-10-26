@@ -340,7 +340,7 @@ def show_home():
         st.markdown(
             """
             - **🔍 Risk Analysis**: 
-            Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups based on our clustering analysis.
+            Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups for adverse health outcomes based on our clustering analysis.
             
             - **🤖 Mortality Risk Prediction**: 
             Input patient data on heart failure risk factors to predict the risk level of mortality.
@@ -882,59 +882,60 @@ def show_clustering_analysis(df):
             selected_df = df[selected_features]
 
             n_clusters = 2
-            # Standardize the selected features before KMeans
-            scaler = StandardScaler()
-            selected_df_scaled = scaler.fit_transform(selected_df)
-
             kmeans = KMeans(n_clusters=n_clusters)
-            df['Cluster'] = kmeans.fit_predict(selected_df_scaled)  
+            df['Cluster'] = kmeans.fit_predict(selected_df)
 
             if selected_df.shape[1] >= 2:
-                
+                # Standardize the selected features before PCA
+                from sklearn.preprocessing import StandardScaler
+                scaler = StandardScaler()
+                selected_df_scaled = scaler.fit_transform(selected_df)
+
                 pca = PCA(n_components=2)
-                pca_result = pca.fit_transform(selected_df_scaled) 
+                pca_result = pca.fit_transform(selected_df_scaled)
 
                 pca_df = pd.DataFrame(data=pca_result, columns=['PCA Component 1', 'PCA Component 2'])
                 pca_df['Cluster'] = df['Cluster'].astype(str)
                 
                 pca_df[feature1] = selected_df[feature1].values
                 pca_df[feature2] = selected_df[feature2].values
-
                 color_map = {
-                    '0': 'green',
-                    '1': 'red',
-                }
+                        '0': 'green',   
+                        '1': 'red',     
+                    }
                 fig = px.scatter(
-                    pca_df,
-                    x=feature2,  
+                    pca_df, 
+                    x=feature2, 
                     y=feature1, 
-                    color='Cluster',
+                    color='Cluster', 
                     title="K-Means Clustering",
                     color_discrete_map=color_map,
                     labels={"color": "Cluster"}
                 )
                 fig.update_layout(title_x=0.5)
                 st.plotly_chart(fig)
-                
+            
                 cluster_risks = df.groupby('Cluster')['mortality'].mean()
                 
                 risk_df = cluster_risks.reset_index()
                 risk_df.columns = ['Cluster', 'Average Mortality Risk']
                 
+                # Determine high-risk and low-risk clusters
                 risk_threshold = risk_df['Average Mortality Risk'].median()
                 risk_df['Risk Level'] = risk_df['Average Mortality Risk'].apply(lambda x: 'High Risk' if x > risk_threshold else 'Low Risk')
                 
                 st.subheader("Cluster Overview")
                 for index, row in risk_df.iterrows():
                     with st.expander(f"**Cluster {row['Cluster']} Overview**"):
-                    
+                        # Show more details about the cluster
                         cluster_data = df[df['Cluster'] == row['Cluster']]
                     
                         st.write(f"<span style='color: #007bff;'><strong>Total Members in Cluster:</strong> {len(cluster_data)}</span>", unsafe_allow_html=True)
-                        
-                        st.write("### Key Insights:")
-                        st.write("The average values of the top five features in this cluster provide insights into the typical patient profile.")
                     
+                        st.write("### Key Insights:")
+                        st.write("The average values of the top five factors in this cluster provide insights into the typical patient profile.")
+                        
+                        # Get the top 5 features by mean value
                         important_features = cluster_data.mean().nlargest(5)
                     
                         for feature, value in important_features.items():
