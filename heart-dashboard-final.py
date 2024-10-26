@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from scipy.stats import pointbiserialr
 
 # Streamlit page configuration
 st.set_page_config(page_title="Heart to Say", 
@@ -713,25 +714,63 @@ def show_data_overview(df):
 def show_eda(df):
     st.title("Heart Failures Factors Correlation")
     st.markdown("---")
-    
     show_correlation(df)
 
-import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
-
+import seaborn as sns
 def show_correlation(df):
+
     st.subheader("Correlation Matrix")
     st.write("A correlation matrix shows how heart failure factors are related to each other in a simple table.")
-    
-    st.markdown("")
-    df.rename(columns={"mortality": "mortality risk"}, inplace=True)
-    selected_features = df.columns.tolist()
-    selected_features = [feature for feature in df.columns if feature != 'mortality risk']
-    target_variable = 'mortality risk'  
-    
-    if target_variable not in selected_features:
-        selected_features.append(target_variable)
 
+    # Prepare your DataFrame
+    selected_features = [feature for feature in df.columns if feature != 'mortality risk']
+    target_variable = 'mortality'
+
+    if target_variable not in df.columns:
+        st.error(f"Target variable '{target_variable}' not found in the DataFrame.")
+        return
+    # Convert categorical variables to numerical
+    for column in df.columns:
+        if df[column].dtype == object and set(df[column].dropna().unique()).issubset({'Yes', 'No'}):
+            df[column] = df[column].map({'Yes': 1, 'No': 0})
+        elif column == 'sex' and df['sex'].dtype == object:
+            df['sex'] = df['sex'].map({'Male': 1, 'Female': 0})
+
+    # Extract binary and numerical features
+    binary_features = [col for col in df.columns if set(df[col].dropna().unique()).issubset({0, 1})]
+    numerical_features = [col for col in df.select_dtypes(include=np.number).columns if col not in binary_features]
+
+    correlation_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
+
+    for feature1 in binary_features:
+        for feature2 in binary_features:
+            if feature1 != feature2:
+                correlation_matrix.loc[feature1, feature2] = np.corrcoef(df[feature1], df[feature2])[0, 1]
+            else:
+                correlation_matrix.loc[feature1, feature2] = 1  
+
+    for binary in binary_features:
+        for numerical in numerical_features:
+            correlation_matrix.loc[binary, numerical] = pointbiserialr(df[binary], df[numerical])[0]
+            correlation_matrix.loc[numerical, binary] = pointbiserialr(df[binary], df[numerical])[0]
+
+    for feature1 in numerical_features:
+        for feature2 in numerical_features:
+            correlation_matrix.loc[feature1, feature2] = df[[feature1, feature2]].corr().iloc[0, 1]
+
+    correlation_matrix = correlation_matrix.astype(float)
+
+    # Plotly Heatmap
+    fig = px.imshow(correlation_matrix, 
+                    text_auto=True, 
+                    aspect="auto", 
+                    color_continuous_scale='RdBu', 
+                    range_color=[-1, 1], 
+                    title='Correlation Matrix',
+                    labels=dict(x="Features", y="Features"))
+
+    # Feature Selection and Correlation Interpretation
     col1, col2 = st.columns([1, 2])
     with col1:
         st.markdown(
@@ -745,25 +784,28 @@ def show_correlation(df):
             unsafe_allow_html=True
         )
         selected_feature = st.selectbox("Select a factor to view its correlation with mortality risk:", selected_features,
-                                    index=selected_features.index("diabetes"))
+                                        index=selected_features.index("diabetes"))
+
     with col2:
         if len(selected_features) > 0:
-            
             corr_df = df[selected_features].corr()
+            if target_variable in corr_df.columns:
+                target_correlation = corr_df[target_variable][selected_feature]
+                st.write(f"The correlation coefficient between {selected_feature} and {target_variable} is: {target_correlation:.2f}")
+            else:
+                st.warning(f"Target variable '{target_variable}' not found in correlation DataFrame.")
 
-            target_correlation = corr_df[target_variable][selected_feature]
-
-            st.write(f"The correlation Coefficient between {selected_feature} and {target_variable} is: {target_correlation:.2f}")
+            # Interpret correlation
             color_map = {
-                'Very high positive correlation': '#e74c3c',  
-                'High positive correlation': '#d45d27',       
-                'Moderate positive correlation': '#e6a900',   
-                'Low positive correlation': '#f0e68c',       
-                'Negligible correlation': '#bdc3c7',          
-                'Very high negative correlation': '#c0392b', 
-                'High negative correlation': '#8e44ad',       
-                'Moderate negative correlation': '#2980b9',   
-                'Low negative correlation': '#3498db',       
+                'Very high positive correlation': '#e74c3c',
+                'High positive correlation': '#d45d27',
+                'Moderate positive correlation': '#e6a900',
+                'Low positive correlation': '#f0e68c',
+                'Negligible correlation': '#bdc3c7',
+                'Very high negative correlation': '#c0392b',
+                'High negative correlation': '#8e44ad',
+                'Moderate negative correlation': '#2980b9',
+                'Low negative correlation': '#3498db',
             }
 
             if target_correlation >= 0.9:
@@ -814,44 +856,12 @@ def show_correlation(df):
                 </div>
                 """, unsafe_allow_html=True
             )
-    st.markdown("<br>" *2, unsafe_allow_html=True)
-        
-    if len(selected_features) > 0:
 
-        corr_df = df[selected_features].corr()
+    st.plotly_chart(fig)
 
-        fig = ff.create_annotated_heatmap(
-            z=corr_df.values,
-            x=list(corr_df.columns),
-            y=list(corr_df.index),
-            annotation_text=corr_df.round(2).values,
-            colorscale='Viridis', 
-            showscale=True,
-            colorbar=dict(title="Correlation Coefficient")
-        )
-
-        fig.update_layout(
-            title='Correlation Matrix',
-            xaxis_title='Features',
-            yaxis_title='Features',
-            width=800,
-            height=600,
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-       
-    else:
-        st.warning("Please select at least one feature for correlation analysis.")
-    
     st.write("The heat map illustrates the correlation between cardiovascular disease-related data features. It reveals a positive correlation between serum creatinine and mortality and between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibits a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
-    st.markdown("<br>"*3, unsafe_allow_html=True)
+    st.markdown("<br>" * 3, unsafe_allow_html=True)
 
-def show_clustering_analysis(df):
-    from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-import streamlit as st
-import plotly.express as px
-import pandas as pd
 
 def show_clustering_analysis(df):
     st.title("Group Identification")
