@@ -228,15 +228,15 @@ def show_contact_us():
     [Heart Failure Clinical Data](https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data)
                   
     **Project Information**:  
-    [Project GitHub](https://github.com/Jiangnanwhale/Heart-Health-Caring-Team)
+    [Heart to Say Medical Dashboard GitHub](https://github.com/Jiangnanwhale/Heart-Health-Caring-Team)
                 
     **Problem Description**: 
                 
     The Heart to Say project aims to build a web-based medical dashboard that supports physicians in predicting the risk of mortality due to heart failure. Physicians can reassess treatment plans, explore alternative therapies, and closely monitor patients to help mitigate mortality risk. Prescriptive analytics will be used on patient data to help physicians identify specific factors contributing to elevated mortality risk. Thus, it will provide recommendations based on existing medical guidelines to guide clinical decision-making individually for the prevention and/or mitigation of mortality due to heart failure. 
     
     **Design Process**: 
-    1. Team Rules: Document, Paper prototype
-    2. Project Charter: Document, Digital prototype and Preprocessing dataset
+    1. Team Rules: Document, Paper prototype.        
+    2. Project Charter: Document, Digital prototype and Preprocessing dataset.         
     3. Project Delivery: Web medical dashboard, Video showcase and Final project report.      
                 
     **References**:  
