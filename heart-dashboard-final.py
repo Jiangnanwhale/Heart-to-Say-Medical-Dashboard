@@ -323,7 +323,6 @@ def show_home():
     )
 
     col1, col2 = st.columns(2)
-    
     with col1:
         st.markdown(
             """
@@ -336,18 +335,13 @@ def show_home():
                 - Smoking status
                 - Comorbidities
                 - Laboratory test results
-
-            - **🔍 Factors Correlation**: 
-            Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview.
             """
         )
-    
     with col2:
         st.markdown(
             """
-            
-            - **🩺 Risk Group Identification**: 
-            Explore specific patient characteristics to identify groups at higher or lower risk for adverse health outcomes based on our clustering analysis.
+            - **🔍 Risk Analysis**: 
+            Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups at higher or lower risk for adverse health outcomes based on our clustering analysis.
             
             - **🤖 Mortality Risk Prediction**: 
             Input patient data on heart failure risk factors to predict the risk level of mortality.
