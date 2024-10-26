@@ -273,7 +273,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Overview of Patients", "Factors Correlation","Risk Group Identification","Mortality Risk Prediction", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Overview of Patients", "Risk Analysis","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={ 'time': 'follow-up days',
@@ -287,12 +287,16 @@ def show_input_data():
                         
     if option == "Overview of Patients":
         show_data_overview(df)
-    elif option == "Factors Correlation":
-        show_eda(df)
     elif option == "Contact Us":
         show_contact_us()
-    elif option == "Risk Group Identification":
-        show_clustering_analysis(df)
+    elif option == "Risk Analysis":
+        st.title("Risk Analysis")
+        sub_option = st.radio("Choose an option:", ["Factors Correlation", "Risk Group Identification"])
+        if sub_option == "Factors Correlation":
+            show_eda(df)  
+        elif sub_option == "Risk Group Identification":
+            show_clustering_analysis(df) 
+            show_clustering_analysis(df)
     elif option == "Mortality Risk Prediction":
         with st.sidebar:
             sub_option = st.radio("Choose an action:", ["Input your data", "Model explanation (SHAP)"])
@@ -860,13 +864,21 @@ def show_clustering_analysis(df):
     st.title("Risk Group Identification")
     st.markdown("In this section, you can choose specific patient characteristics to help identify groups at higher or lower risk for adverse health outcomes using our clustering analysis.")
 
-    available_features = [col for col in df.columns.tolist() if col not in ['mortality']]
+    allowed_features = [
+                    "age",
+                    "creatinine phosphokinase",
+                    "ejection fraction",
+                    "platelets",
+                    "serum creatinine",
+                    "serum sodium",
+                    "follow-up days"
+                        ]
     
     left_column, right_column = st.columns(2)
     with left_column:
-        feature1 = st.selectbox('Select First Factor for Clustering:', available_features, index=available_features.index('ejection fraction'))
+        feature1 = st.selectbox('Select First Factor for Clustering:', allowed_features, index=0)
     with right_column:
-        feature2 = st.selectbox('Select Second Factor for Clustering:', available_features, index=available_features.index('follow-up days'))
+        feature2 = st.selectbox('Select Second Factor for Clustering:', allowed_features, index=1)
 
     if feature1 == feature2:
         st.warning("Please select different features for clustering.")
@@ -901,8 +913,8 @@ def show_clustering_analysis(df):
                 # Plot
                 fig = px.scatter(
                     pca_df, 
-                    x=feature2, 
-                    y=feature1, 
+                    x=feature1, 
+                    y=feature2, 
                     color='Cluster', 
                     title="K-Means Clustering for Risk Groups",
                     labels={"color": "Cluster"}
