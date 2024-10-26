@@ -864,9 +864,9 @@ def show_clustering_analysis(df):
     
     left_column, right_column = st.columns(2)
     with left_column:
-        feature1 = st.selectbox('Select First Feature for Clustering:', available_features, index=available_features.index('ejection fraction'))
+        feature1 = st.selectbox('Select First Factor for Clustering:', available_features, index=available_features.index('ejection fraction'))
     with right_column:
-        feature2 = st.selectbox('Select Second Feature for Clustering:', available_features, index=available_features.index('follow-up days'))
+        feature2 = st.selectbox('Select Second Factor for Clustering:', available_features, index=available_features.index('follow-up days'))
 
     if feature1 == feature2:
         st.warning("Please select different features for clustering.")
