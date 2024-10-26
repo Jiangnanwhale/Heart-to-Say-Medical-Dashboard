@@ -35,7 +35,7 @@ Data source - https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-d
 <ol>
 <li>Clone this repo</li>
 <li>Install all the dependencies</li>
-<li>Run -> streamlit run app.py</li>
+<li>Run -> streamlit run heart-dashboard-final.py</li>
 </ol>
 
 ## 💌 Feedback

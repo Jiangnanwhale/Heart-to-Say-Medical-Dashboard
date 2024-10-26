@@ -13,6 +13,8 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 # Streamlit page configuration
 st.set_page_config(page_title="Heart to Say", 
@@ -226,15 +228,15 @@ def show_contact_us():
     [Heart Failure Clinical Data](https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data)
                   
     **Project Information**:  
-    [Project GitHub](https://github.com/Jiangnanwhale/Heart-Health-Caring-Team)
+    [Heart to Say Medical Dashboard GitHub](https://github.com/Jiangnanwhale/Heart-Health-Caring-Team)
                 
     **Problem Description**: 
                 
     The Heart to Say project aims to build a web-based medical dashboard that supports physicians in predicting the risk of mortality due to heart failure. Physicians can reassess treatment plans, explore alternative therapies, and closely monitor patients to help mitigate mortality risk. Prescriptive analytics will be used on patient data to help physicians identify specific factors contributing to elevated mortality risk. Thus, it will provide recommendations based on existing medical guidelines to guide clinical decision-making individually for the prevention and/or mitigation of mortality due to heart failure. 
     
     **Design Process**: 
-    1. Team Rules: Document, Paper prototype
-    2. Project Charter: Document, Digital prototype and Preprocessing dataset
+    1. Team Rules: Document, Paper prototype.        
+    2. Project Charter: Document, Digital prototype and Preprocessing dataset.         
     3. Project Delivery: Web medical dashboard, Video showcase and Final project report.      
                 
     **References**:  
@@ -271,7 +273,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Overview of Patients", "Factors Correlation","Mortality Risk Prediction", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Overview of Patients", "Factors Correlation","Risk Group Identification","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={ 'time': 'follow-up days',
@@ -289,6 +291,8 @@ def show_input_data():
         show_eda(df)
     elif option == "Contact Us":
         show_contact_us()
+    elif option == "Risk Group Identification":
+        show_clustering_analysis(df)
     elif option == "Mortality Risk Prediction":
         with st.sidebar:
             sub_option = st.radio("Choose an action:", ["Input your data", "Model explanation (SHAP)"])
@@ -314,33 +318,38 @@ def show_home():
         """We aim to provide insights for better clinical decision-making by utilising patient data and advanced analytics."""
     )
 
-
-    st.markdown("### The Dashboard Features")
     col1, col2 = st.columns(2)
     
     with col1:
         st.markdown(
             """
             - **🏠 Home**: 
-              Provides an overview of the dashboard's functionality.
+            Provides an overview of the dashboard's functionality.
+            
             - **📊 Overview of Patients**: 
-              Explore heart failure patient's data, enabling healthcare professionals to view trends and prevalence based on:
-              - Age and gender
-              - Smoking status
-              - Comorbidities
-              - Laboratory test results
+            Explore heart failure patient's data, enabling healthcare professionals to view trends and prevalence based on:
+                - Age and gender
+                - Smoking status
+                - Comorbidities
+                - Laboratory test results
+
+            - **🔍 Factors Correlation**: 
+            Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview.
             """
         )
     
     with col2:
         st.markdown(
             """
-            - **🔍 Factors Correlation**: 
-              Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview.
+            
+            - **🩺 Risk Group Identification**: 
+            Explore specific patient characteristics to identify groups at higher or lower risk for adverse health outcomes based on our clustering analysis.
+            
             - **🤖 Mortality Risk Prediction**: 
-              Input patient data on heart failure risk factors to predict the risk level of mortality.
+            Input patient data on heart failure risk factors to predict the risk level of mortality.
+            
             - **📞 Contact Us**: 
-              Get in touch for more information about project, our team, and how to reach us.
+            Get in touch for more information about the project, our team, and how to reach us.
             """
         )
     
@@ -839,6 +848,113 @@ def show_correlation(df):
     
     st.write("The heat map illustrates the correlation between cardiovascular disease-related data features. It reveals a positive correlation between serum creatinine and mortality and between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibits a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
     st.markdown("<br>"*3, unsafe_allow_html=True)
+
+def show_clustering_analysis(df):
+    from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+import streamlit as st
+import plotly.express as px
+import pandas as pd
+
+def show_clustering_analysis(df):
+    st.title("Risk Group Identification")
+    st.markdown("In this section, you can choose specific patient characteristics to help identify groups at higher or lower risk for adverse health outcomes using our clustering analysis.")
+
+    available_features = [col for col in df.columns.tolist() if col not in ['mortality']]
+    
+    left_column, right_column = st.columns(2)
+    with left_column:
+        feature1 = st.selectbox('Select First Factor for Clustering:', available_features, index=available_features.index('ejection fraction'))
+    with right_column:
+        feature2 = st.selectbox('Select Second Factor for Clustering:', available_features, index=available_features.index('follow-up days'))
+
+    if feature1 == feature2:
+        st.warning("Please select different features for clustering.")
+    else:
+        selected_features = [feature1, feature2, 'mortality']
+
+        if len(selected_features) > 0:
+            selected_df = df[selected_features]
+
+            n_clusters = st.slider("Select number of clusters:", min_value=2, max_value=10, value=3)
+            kmeans = KMeans(n_clusters=n_clusters)
+            df['Cluster'] = kmeans.fit_predict(selected_df)
+
+            if selected_df.shape[1] >= 2:
+                # Standardize the selected features before PCA
+                from sklearn.preprocessing import StandardScaler
+                scaler = StandardScaler()
+                selected_df_scaled = scaler.fit_transform(selected_df)
+
+                # Apply PCA
+                pca = PCA(n_components=2)
+                pca_result = pca.fit_transform(selected_df_scaled)
+
+                # Create a DataFrame for the PCA result for better plotting
+                pca_df = pd.DataFrame(data=pca_result, columns=['PCA Component 1', 'PCA Component 2'])
+                pca_df['Cluster'] = df['Cluster'].astype(str)
+                
+                # Add selected feature values to pca_df for plotting
+                pca_df[feature1] = selected_df[feature1].values
+                pca_df[feature2] = selected_df[feature2].values
+
+                # Plot
+                fig = px.scatter(
+                    pca_df, 
+                    x=feature2, 
+                    y=feature1, 
+                    color='Cluster', 
+                    title="K-Means Clustering for Risk Groups",
+                    labels={"color": "Cluster"}
+                )
+                fig.update_layout(title_x=0.5)
+                st.plotly_chart(fig)
+                
+                # Calculate average mortality for each cluster (if mortality is binary)
+                cluster_risks = df.groupby('Cluster')['mortality'].mean()
+                
+                # Display risk levels for each cluster
+                risk_df = cluster_risks.reset_index()
+                risk_df.columns = ['Cluster', 'Average Mortality Risk']
+                
+                # Determine high-risk and low-risk clusters
+                risk_threshold = risk_df['Average Mortality Risk'].median()
+                risk_df['Risk Level'] = risk_df['Average Mortality Risk'].apply(lambda x: 'High Risk' if x > risk_threshold else 'Low Risk')
+                
+                st.subheader("Cluster Risk Levels based on Average Mortality")
+                st.write(
+                    "<span style='color: #6c757d;'>"
+                    "The classification of high-risk and low-risk clusters is based on the average mortality risk across clusters. "
+                    "Clusters with an average mortality risk above the median value are categorized as <strong>High Risk</strong>, "
+                    "while those below the median are categorized as <strong>Low Risk</strong>."
+                    "</span>",
+                    unsafe_allow_html=True
+                )
+            # Iterate through each cluster and create an expander for details
+                for index, row in risk_df.iterrows():
+                    with st.expander(f"**Cluster {row['Cluster']}**: Average Mortality Risk = {row['Average Mortality Risk']:.2f} - {row['Risk Level']}"):
+                        # Show more details about the cluster
+                        cluster_data = df[df['Cluster'] == row['Cluster']]
+                        
+                        # Display a simplified summary of the cluster
+                        st.write("### Cluster Overview:")
+                        st.write(f"<span style='color: #007bff;'><strong>Total Members in Cluster:</strong> {len(cluster_data)}</span>", unsafe_allow_html=True)
+                        st.write(f"<span style='color: #dc3545;'><strong>Average Mortality Risk:</strong> {row['Average Mortality Risk']:.2f} ({row['Risk Level']})</span>", unsafe_allow_html=True)
+                        
+                        # Display additional insights
+                        st.write("### Key Insights:")
+                        st.write("The average values of the top five features in this cluster provide insights into the typical patient profile. For instance, a high average in certain medical parameters may suggest a greater likelihood of complications or mortality. Understanding these characteristics allows healthcare professionals to tailor their care strategies and prioritize interventions effectively.")
+                        
+                        # Get the top 5 features by mean value
+                        important_features = cluster_data.mean().nlargest(5)
+                        
+                        # Display the important features with color coding
+                        for feature, value in important_features.items():
+                            st.write(f"<span style='color: #28a745;'><strong>{feature}:</strong> {value:.2f}</span>", unsafe_allow_html=True)
+
+
+        st.markdown("<br>"*3, unsafe_allow_html=True)
+
 
 def show_model_performance(df):
     
