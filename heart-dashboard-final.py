@@ -296,7 +296,6 @@ def show_input_data():
             show_eda(df)  
         elif sub_option == "Risk Group Identification":
             show_clustering_analysis(df) 
-            show_clustering_analysis(df)
     elif option == "Mortality Risk Prediction":
         with st.sidebar:
             sub_option = st.radio("Choose an action:", ["Input your data", "Model explanation (SHAP)"])
