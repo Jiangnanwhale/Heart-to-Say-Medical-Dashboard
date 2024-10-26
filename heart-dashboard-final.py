@@ -291,10 +291,10 @@ def show_input_data():
         show_contact_us()
     elif option == "Risk Analysis":
         st.title("Risk Analysis")
-        sub_option = st.radio("Choose an option:", ["Factors Correlation", "Risk Group Identification"])
+        sub_option = st.radio("Choose an option:", ["Factors Correlation", "Group Identification"])
         if sub_option == "Factors Correlation":
             show_eda(df)  
-        elif sub_option == "Risk Group Identification":
+        elif sub_option == "Group Identification":
             show_clustering_analysis(df) 
     elif option == "Mortality Risk Prediction":
         with st.sidebar:
@@ -340,7 +340,7 @@ def show_home():
         st.markdown(
             """
             - **🔍 Risk Analysis**: 
-            Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups at higher or lower risk for adverse health outcomes based on our clustering analysis.
+            Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups based on our clustering analysis.
             
             - **🤖 Mortality Risk Prediction**: 
             Input patient data on heart failure risk factors to predict the risk level of mortality.
@@ -854,8 +854,8 @@ import plotly.express as px
 import pandas as pd
 
 def show_clustering_analysis(df):
-    st.title("Risk Group Identification")
-    st.markdown("In this section, you can choose specific patient characteristics to help identify groups at higher or lower risk for adverse health outcomes using our clustering analysis.")
+    st.title("Group Identification")
+    st.markdown("In this section, you can choose specific patient characteristics to help identify patient characteristics using our clustering analysis.")
 
     allowed_features = [
                     "age",
@@ -869,19 +869,19 @@ def show_clustering_analysis(df):
     
     left_column, right_column = st.columns(2)
     with left_column:
-        feature1 = st.selectbox('Select First Factor for Clustering:', allowed_features, index=0)
+        feature1 = st.selectbox('Select First Factor for Clustering:', allowed_features, index=allowed_features.index("age"))
     with right_column:
-        feature2 = st.selectbox('Select Second Factor for Clustering:', allowed_features, index=1)
+        feature2 = st.selectbox('Select Second Factor for Clustering:', allowed_features, index=allowed_features.index("follow-up days"))
 
     if feature1 == feature2:
-        st.warning("Please select different features for clustering.")
+        st.warning("Please select different factors for clustering.")
     else:
-        selected_features = [feature1, feature2, 'mortality']
+        selected_features = [feature1, feature2]
 
         if len(selected_features) > 0:
             selected_df = df[selected_features]
 
-            n_clusters = st.slider("Select number of clusters:", min_value=2, max_value=10, value=3)
+            n_clusters = 2
             kmeans = KMeans(n_clusters=n_clusters)
             df['Cluster'] = kmeans.fit_predict(selected_df)
 
@@ -891,34 +891,32 @@ def show_clustering_analysis(df):
                 scaler = StandardScaler()
                 selected_df_scaled = scaler.fit_transform(selected_df)
 
-                # Apply PCA
                 pca = PCA(n_components=2)
                 pca_result = pca.fit_transform(selected_df_scaled)
 
-                # Create a DataFrame for the PCA result for better plotting
                 pca_df = pd.DataFrame(data=pca_result, columns=['PCA Component 1', 'PCA Component 2'])
                 pca_df['Cluster'] = df['Cluster'].astype(str)
                 
-                # Add selected feature values to pca_df for plotting
                 pca_df[feature1] = selected_df[feature1].values
                 pca_df[feature2] = selected_df[feature2].values
-
-                # Plot
+                color_map = {
+                        '0': 'green',   
+                        '1': 'red',     
+                    }
                 fig = px.scatter(
                     pca_df, 
-                    x=feature1, 
-                    y=feature2, 
+                    x=feature2, 
+                    y=feature1, 
                     color='Cluster', 
-                    title="K-Means Clustering for Risk Groups",
+                    title="K-Means Clustering",
+                    color_discrete_map=color_map,
                     labels={"color": "Cluster"}
                 )
                 fig.update_layout(title_x=0.5)
                 st.plotly_chart(fig)
-                
-                # Calculate average mortality for each cluster (if mortality is binary)
+            
                 cluster_risks = df.groupby('Cluster')['mortality'].mean()
                 
-                # Display risk levels for each cluster
                 risk_df = cluster_risks.reset_index()
                 risk_df.columns = ['Cluster', 'Average Mortality Risk']
                 
@@ -926,29 +924,17 @@ def show_clustering_analysis(df):
                 risk_threshold = risk_df['Average Mortality Risk'].median()
                 risk_df['Risk Level'] = risk_df['Average Mortality Risk'].apply(lambda x: 'High Risk' if x > risk_threshold else 'Low Risk')
                 
-                st.subheader("Cluster Risk Levels based on Average Mortality")
-                st.write(
-                    "<span style='color: #6c757d;'>"
-                    "The classification of high-risk and low-risk clusters is based on the average mortality risk across clusters. "
-                    "Clusters with an average mortality risk above the median value are categorized as <strong>High Risk</strong>, "
-                    "while those below the median are categorized as <strong>Low Risk</strong>."
-                    "</span>",
-                    unsafe_allow_html=True
-                )
-            # Iterate through each cluster and create an expander for details
+                st.subheader("Cluster Overview")
                 for index, row in risk_df.iterrows():
-                    with st.expander(f"**Cluster {row['Cluster']}**: Average Mortality Risk = {row['Average Mortality Risk']:.2f} - {row['Risk Level']}"):
+                    with st.expander(f"**Cluster {row['Cluster']} Overview**"):
                         # Show more details about the cluster
                         cluster_data = df[df['Cluster'] == row['Cluster']]
                         
-                        # Display a simplified summary of the cluster
                         st.write("### Cluster Overview:")
                         st.write(f"<span style='color: #007bff;'><strong>Total Members in Cluster:</strong> {len(cluster_data)}</span>", unsafe_allow_html=True)
-                        st.write(f"<span style='color: #dc3545;'><strong>Average Mortality Risk:</strong> {row['Average Mortality Risk']:.2f} ({row['Risk Level']})</span>", unsafe_allow_html=True)
-                        
                         # Display additional insights
                         st.write("### Key Insights:")
-                        st.write("The average values of the top five features in this cluster provide insights into the typical patient profile. For instance, a high average in certain medical parameters may suggest a greater likelihood of complications or mortality. Understanding these characteristics allows healthcare professionals to tailor their care strategies and prioritize interventions effectively.")
+                        st.write("The average values of the top five features in this cluster provide insights into the typical patient profile.")
                         
                         # Get the top 5 features by mean value
                         important_features = cluster_data.mean().nlargest(5)
