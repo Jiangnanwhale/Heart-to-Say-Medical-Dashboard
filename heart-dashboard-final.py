@@ -331,12 +331,12 @@ def show_input_data():
         show_home()
 
 def show_home():
-    st.title("💖 Welcome to Heart to Say Dashboard")
+    st.title("💖 Welcome to the Heart to Say Web Dashboard")
     st.markdown("---")
     
     st.markdown(
     """
-    **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
+    **This dashboard supports General Practitioners, Cardiologists and Cardiac Nurses in predicting the risk of mortality due to heart failure.** 
     """
     )
     
@@ -353,7 +353,7 @@ def show_home():
             Provides an overview of the dashboard's functionality.
             
             - **📊 Patients Data Overview**: 
-            Explore heart failure patient's data, enabling healthcare professionals to view trends and prevalence based on:
+            Explore heart failure patient's data, enabling you to view trends and prevalence based on:
                 - Age and gender
                 - Smoking status
                 - Comorbidities
