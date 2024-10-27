@@ -297,7 +297,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Overview of Patients", "Risk Analysis","Mortality Risk Prediction", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Overview of Patients", "Data Analysis","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={ 'time': 'follow-up days',
@@ -313,8 +313,8 @@ def show_input_data():
         show_data_overview(df)
     elif option == "Contact Us":
         show_contact_us()
-    elif option == "Risk Analysis":
-        st.title("Risk Analysis")
+    elif option == "Data Analysis":
+        st.title("Data Analysis")
         sub_option = st.radio("Choose an option:", ["Factors Correlation", "Group Identification"])
         if sub_option == "Factors Correlation":
             show_eda(df)  
@@ -363,7 +363,7 @@ def show_home():
     with col2:
         st.markdown(
             """
-            - **🔍 Risk Analysis**: 
+            - **🔍 Data Analysis**: 
             Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups for adverse health outcomes based on our clustering analysis.
             
             - **🤖 Mortality Risk Prediction**: 
