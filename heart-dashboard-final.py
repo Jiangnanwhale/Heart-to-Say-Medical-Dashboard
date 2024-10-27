@@ -233,7 +233,7 @@ def show_contact_us():
                 
     **Problem Description**: 
 
-    Cardiovascular disease (CVD) is the leading cause of death worldwide, with an estimated 20.5 million deaths reported in 2021 [3, 4]. Among CVD conditions, heart failure presents a survival prognosis comparable to that of severe cancers [3, 5]. Key risk factors include smoking [6], anemia [7–9], diabetes [11–13], ejection fraction, and hypertension [6, 14, 15]. Elderly patients [6, 16] and men [6] are often more represented among those who die from heart failure. Accurate forecasting in heart failure patients is crucial for preventing mortality [6, 17]. 
+    Cardiovascular disease (CVD) is the leading cause of death worldwide, with an estimated 20.5 million deaths reported in 2021 [3, 4]. Among CVD conditions, heart failure presents a survival prognosis comparable to that of severe cancers [3, 5]. Key risk factors include smoking [6], anemia [7–10], diabetes [11–13], ejection fraction, and hypertension [6, 14, 15]. Elderly patients [6, 16] and men [6] are often more represented among those who die from heart failure. Accurate forecasting in heart failure patients is crucial for preventing mortality [6, 17]. 
     
     **Project Scope and Purpose**:
     
