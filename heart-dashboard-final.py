@@ -297,7 +297,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Patients Data Overview", "Data Analysis","Mortality Risk Prediction", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Overview of Patients", "Risk Analysis","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={ 'time': 'follow-up days',
@@ -309,12 +309,12 @@ def show_input_data():
                         "high_blood_pressure": "hypertension"
                         }, inplace=True)
                         
-    if option == "Patients Data Overview":
+    if option == "Overview of Patients":
         show_data_overview(df)
     elif option == "Contact Us":
         show_contact_us()
-    elif option == "Data Analysis":
-        st.title("Data Analysis")
+    elif option == "Risk Analysis":
+        st.title("Risk Analysis")
         sub_option = st.radio("Choose an option:", ["Factors Correlation", "Group Identification"])
         if sub_option == "Factors Correlation":
             show_eda(df)  
@@ -336,7 +336,7 @@ def show_home():
     
     st.markdown(
     """
-    **This dashboard supports general practitioners, cardiologists and cardiac nurses in predicting the risk of mortality due to heart failure.** 
+    **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
     """
     )
     
@@ -352,8 +352,8 @@ def show_home():
             - **🏠 Home**: 
             Provides an overview of the dashboard's functionality.
             
-            - **📊 Patients Data Overview**: 
-            Explore heart failure patient's data, enabling you to view trends and prevalence based on:
+            - **📊 Overview of Patients**: 
+            Explore heart failure patient's data, enabling healthcare professionals to view trends and prevalence based on:
                 - Age and gender
                 - Smoking status
                 - Comorbidities
@@ -363,7 +363,7 @@ def show_home():
     with col2:
         st.markdown(
             """
-            - **🔍 Data Analysis**: 
+            - **🔍 Risk Analysis**: 
             Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups for adverse health outcomes based on our clustering analysis.
             
             - **🤖 Mortality Risk Prediction**: 
@@ -578,7 +578,7 @@ def upload_pre_model():
     st.markdown("<br><br><br>", unsafe_allow_html=True) 
 
 def show_data_overview(df):
-    st.title("Patients Data Overview")
+    st.title("Overview of Patients")
     
     # Dataset basic info
     total_records = len(df)
@@ -596,7 +596,7 @@ def show_data_overview(df):
     """
 
     with col1:
-        st.markdown(card_style.format(bg_color="#808080", title="Total Records", value=total_records,
+        st.markdown(card_style.format(bg_color="#2ca02c", title="Total Records", value=total_records,
                                   description="This represents the total number of patient records."), unsafe_allow_html=True)
 
     with col2:
@@ -604,14 +604,14 @@ def show_data_overview(df):
                                     description="Number of patients who experienced a death event."), unsafe_allow_html=True)
 
     with col3:
-        st.markdown(card_style.format(bg_color="#2ca02c", title="Survival Cases", value=negative_cases,
+        st.markdown(card_style.format(bg_color="#808080", title="Survival Cases", value=negative_cases,
                                     description="Number of patients who did not experience a death event."), unsafe_allow_html=True)
 
     
     st.markdown("")
     st.markdown("")
 
-    st.subheader("Patients Data Overview")
+    st.subheader("Overview of Patient Data")
     left_column, right_column = st.columns(2)
     
     col = list(df)
@@ -881,7 +881,7 @@ def show_correlation(df):
 
     st.plotly_chart(fig)
 
-    st.write("The heat map illustrates the correlation between heart failure-related data features. It reveals a positive correlation between serum creatinine and mortality and between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibits a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart failure.")
+    st.write("The heat map illustrates the correlation between cardiovascular disease-related data features. It reveals a positive correlation between serum creatinine and mortality and between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibits a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
     st.markdown("<br>" * 3, unsafe_allow_html=True)
 
 
@@ -1088,9 +1088,9 @@ def show_model_performance(df):
     <div style="background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">
         <h2 style="color: #2c3e50; font-family: 'Arial', sans-serif; margin-bottom: 15px;">SHAP Analysis Results Summary</h2>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #34495e; margin-bottom: 20px;">
-            The SHAP analysis provides crucial insights into how each dataset feature influences the model's predictions regarding mortality risk.
+            The SHAP analysis provides crucial insights into how each factor influences the model's predictions regarding mortality risk.
         </p>
-        <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Key Important Features:</h3>
+        <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Key Important Factors:</h3>
         <ul style="font-family: 'Arial', sans-serif; color: #444; list-style-type: circle; padding-left: 20px;">
             {"".join(f"<li style='margin-bottom: 5px;'><strong>{row['Feature']}</strong>: Importance Score = {row['Importance']:.4f}</li>" for _, row in top_contributions.iterrows())}
         </ul>
