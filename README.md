@@ -30,6 +30,7 @@ Data source - https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-d
 
 ## :framed_picture: Demo
 [https://www.loom.com/share/d2e627ac5e8549449d0564622fecade4?sid=d1b56e6e-e203-4b27-9054-106b24e6922b](https://www.loom.com/share/3564b276ce374284bdc69bbda2a5ee1d?sid=3915746a-513a-4356-ac77-32019d88c0b7)
+[https://bit.ly/HeartToSayOverviewDemoVideo] (https://drive.google.com/file/d/1PdteOS0or9F4FmaJ3RcqJCWIJV_VXOIK/view?usp=sharing)
 
 ## :dizzy: How to use?
 <ol>
