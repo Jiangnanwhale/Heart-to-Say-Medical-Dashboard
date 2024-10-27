@@ -313,8 +313,8 @@ def show_input_data():
         show_data_overview(df)
     elif option == "Contact Us":
         show_contact_us()
-    elif option == "Risk Analysis":
-        st.title("Risk Analysis")
+    elif option == "Data Analysis":
+        st.title("Data Analysis")
         sub_option = st.radio("Choose an option:", ["Factors Correlation", "Group Identification"])
         if sub_option == "Factors Correlation":
             show_eda(df)  
@@ -363,7 +363,7 @@ def show_home():
     with col2:
         st.markdown(
             """
-            - **🔍 Risk Analysis**: 
+            - **🔍 Data Analysis**: 
             Analyze correlations and patterns between heart failure risk factors and mortality to provide a comprehensive overview. Explore specific patient characteristics to identify groups for adverse health outcomes based on our clustering analysis.
             
             - **🤖 Mortality Risk Prediction**: 
@@ -881,7 +881,7 @@ def show_correlation(df):
 
     st.plotly_chart(fig)
 
-    st.write("The heat map illustrates the correlation between cardiovascular disease-related data features. It reveals a positive correlation between serum creatinine and mortality and between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibits a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
+    st.write("The heat map illustrates the correlation between heart failure-related data features. It reveals a positive correlation between serum creatinine and mortality and between age and mortality, suggesting that an increase in one factor tends to lead to an increase in the other. Conversely, the number of follow-up days and ejection fraction exhibits a negative correlation with mortality, implying that an increase in one factor is associated with a decrease in the other. These observations offer valuable insights into the risk factors for heart disease.")
     st.markdown("<br>" * 3, unsafe_allow_html=True)
 
 
