@@ -225,32 +225,55 @@ def show_contact_us():
     - Zhao Chen  
     
       
-    **Data Resource**:  
+    **Data Resource[1,2]**:  
     [Heart Failure Clinical Data](https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data)
                   
     **Project Information**:  
     [Heart to Say Medical Dashboard GitHub](https://github.com/Jiangnanwhale/Heart-Health-Caring-Team)
                 
     **Problem Description**: 
-                
-    The Heart to Say project aims to build a web-based medical dashboard that supports physicians in predicting the risk of mortality due to heart failure. Physicians can reassess treatment plans, explore alternative therapies, and closely monitor patients to help mitigate mortality risk. Prescriptive analytics will be used on patient data to help physicians identify specific factors contributing to elevated mortality risk. Thus, it will provide recommendations based on existing medical guidelines to guide clinical decision-making individually for the prevention and/or mitigation of mortality due to heart failure. 
+
+    Cardiovascular disease (CVD) is the leading cause of death worldwide, with an estimated 20.5 million deaths reported in 2021 [3, 4]. Among CVD conditions, heart failure presents a survival prognosis comparable to that of severe cancers [3, 5]. Key risk factors include smoking [6], anemia [7–9], diabetes [11–13], ejection fraction, and hypertension [6, 14, 15]. Elderly patients [6, 16] and men [6] are often more represented among those who die from heart failure. Accurate forecasting in heart failure patients is crucial for preventing mortality [6, 17]. 
     
+    **Project Scope and Purpose**:
+    
+    The Heart to Say project aims to develop a prediction model to estimate the likelihood of mortality in heart failure patients in Pakistan, using a dataset adopted from Chicco D et al. that focuses on the aforementioned subgroup [1,2]. Focusing on Pakistan is important, as heart failure patients in lower-income countries are 3-5 times more likely to die within 30 days of the first hospital admission compared to high-income countries, even after accounting for patient differences and long-term treatments [18]. Pakistan is categorized as a low-middle income country according to the Organisation for Economic Co-operation and Development [19]. Hence, the goal is to deliver a web dashboard for general for general practitioners, cardiologists and cardiac nurses in Pakistan to:
+    1. Predict the likelihood of mortality due to heart failure.
+    2. Display risk factors and severity levels.
+    3. Aid in clinical decision-making to address mortality risk factors effectively.
+                
     **Design Process**: 
     1. Team Rules: Document, Paper prototype.        
     2. Project Charter: Document, Digital prototype and Preprocessing dataset.         
     3. Project Delivery: Web medical dashboard, Video showcase and Final project report.      
-                
+
+    **Project Stakeholders**:
+    - Karolinska Institutet, Sweden (in collaboration with Aga Khan University, Pakistan)
+    - Ministry of National Health Services, Regulations and Coordination, Pakistan
+    - Pakistan Medical Commission, Pakistan
+    - Pakistan Cardiac Society, Pakistan
+    - The Swedish International Development Cooperation Agency, Sweden
+
     **References**:  
-    1. Chicco D, Jurman G. Machine learning can predict survival of patients with heart failure from serum creatinine and ejection fraction alone. BMC Med Inform Decis Mak. 2020 Feb 3;20(1):16.  
-    2. Kaggle. Heart Failure Prediction [Internet]. San Francisco, CA: Kaggle; [date unknown]. [cited 2024 Sep 11]. Available from: https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data. 
-    3. Joseph P, Roy A, Lonn E, Störk S, Floras J, Mielniczuk L, et al. Global Variations in Heart Failure Etiology, Management, and Outcomes. JAMA. 2023 May 16;329(19):1650-1661.
-    4. Regitz-Zagrosek V. Sex and Gender Differences in Heart Failure. Int J Heart Fail. 2020 Apr 13;2(3):157-81.
-    5. Donzé JD, Beeler PE, Bates DW. Impact of Hyponatremia Correction on the Risk for 30-Day Readmission and Death in Patients with Congestive Heart Failure. Am J Med. 2016 Aug;129(8):836-42.
-    6. Stewart S, Playford D, Scalia GM, Currie P, Celermajer DS, Prior D, Codde J, Strange G; NEDA Investigators. Ejection fraction and mortality: a nationwide register-based cohort study of 499 153 women and men. Eur J Heart Fail. 2021 Mar;23(3):406-416.
-    7. Zhong J, Gao J, Luo JC, Zheng JL, Tu GW, Xue Y. Serum creatinine as a predictor of mortality in patients readmitted to the intensive care unit after cardiac surgery: a retrospective cohort study in China. J Thorac Dis. 2021 Mar;13(3):1728-1736.
-    8. Metra M, Cotter G, Gheorghiade M, Dei Cas L, Voors AA. The role of the kidney in heart failure. Eur Heart J. 2012 Sep;33(17):2135-42.
-    9. Mayo Clinic. Creatinine test [Internet]. Rochester, MN: Mayo Foundation for Medical Education and Research; 2022 [cited 2024 Oct 19]. Available from: https://www.mayoclinic.org/tests-procedures/creatinine-test/about/pac-20384646.
-    10. British Heart Foundation. Heart failure [Internet]. London: British Heart Foundation; 2024 [cited 2024 Oct 19]. Available from: https://www.bhf.org.uk/informationsupport/conditions/heart-failure.          
+    1. D C, G J. Machine learning can predict survival of patients with heart failure from serum creatinine and ejection fraction alone. BMC Med Inform Decis Mak. 2020 Mar 2;20(1):16.
+    2. Kaggle. Heart Failure Prediction [Internet]. Kaggle. [cited 2024 Sep 11]. Available from: https://www.kaggle.com/datasets/andrewmvd/heart-failure-clinical-data
+    3. Spitaleri G, Zamora E, Cediel G, Codina P, Santiago-Vacas E, Domingo M, et al. Cause of Death in Heart Failure Based on Etiology: Long-Term Cohort Study of All-Cause and Cardiovascular Mortality. J Clin Med. 2022 Jan 31;11(3):784.
+    4. Savarese G, Becher PM, Lund LH, Seferovic P, Rosano GMC, Coats AJS. Global burden of heart failure: a comprehensive and updated review of epidemiology. Cardiovasc Res. 2023 Jan 18;118(17):3272–87.
+    5. Mamas MA, Sperrin M, Watson MC, Coutts A, Wilde K, Burton C, et al. Do patients have worse outcomes in heart failure than in cancer? A primary care-based cohort study with 10-year follow-up in Scotland. Eur J Heart Fail. 2017 Sep;19(9):1095–104.
+    6. Bozkurt B, Ahmad T, Alexander KM, Baker WL, Bosak K, Breathett K, et al. Heart Failure Epidemiology and Outcomes Statistics: A Report of the Heart Failure Society of America. J Card Fail. 2023 Oct;29(10):1412–51.
+    7. Köseoğlu FD, Özlek B. Anemia and Iron Deficiency Predict All-Cause Mortality in Patients with Heart Failure and Preserved Ejection Fraction: 6-Year Follow-Up Study. Diagnostics. 2024 Jan;14(2):209.
+    8. Siddiqui SW, Ashok T, Patni N, Fatima M, Lamis A, Anne KK. Anemia and Heart Failure: A Narrative Review. Cureus. 2022;14(7):e27167.
+    9. Groenveld HF, Januzzi JL, Damman K, van Wijngaarden J, Hillege HL, van Veldhuisen DJ, et al. Anemia and Mortality in Heart Failure Patients: A Systematic Review and Meta-Analysis. Journal of the American College of Cardiology. 2008 Sep 2;52(10):818–27.
+    10. Xia H, Shen H, Cha W, Lu Q. The Prognostic Significance of Anemia in Patients With Heart Failure: A Meta-Analysis of Studies From the Last Decade. Front Cardiovasc Med. 2021 May 13;8:632318.
+    11. Dunlay SM, Givertz MM, Aguilar D, Allen LA, Chan M, Desai AS, et al. Type 2 Diabetes Mellitus and Heart Failure: A Scientific Statement From the American Heart Association and the Heart Failure Society of America. Circulation. 2019 Aug 13;140(7):e294–324.
+    12. Jr P, Tj G, Rm T. Diabetes, Hypertension, and Cardiovascular Disease: Clinical Insights and Vascular Mechanisms. The Canadian journal of cardiology. 2018 May;34(5). Available from: https://pubmed.ncbi.nlm.nih.gov/29459239/
+    13. Siao WZ, Chen YH, Tsai CF, Lee CM, Jong GP. Diabetes Mellitus and Heart Failure. J Pers Med. 2022 Oct 11;12(10):1698.
+    14. Oh GC, Cho HJ. Blood pressure and heart failure. Clin Hypertens. 2020 Jan 2;26:1.
+    15. Triposkiadis F, Sarafidis P, Briasoulis A, Magouliotis DE, Athanasiou T, Skoularigis J, et al. Hypertensive Heart Failure. Journal of Clinical Medicine. 2023 Jan;12(15):5090.
+    16. Krittayaphong R, Karaketklang K, Yindeengam A, Janwanishstaporn S. Heart failure mortality compared between elderly and non-elderly Thai patients. J Geriatr Cardiol. 2018 Dec;15(12):718–24.
+    17. Goff DC, Brass L, Braun LT, Croft JB, Flesch JD, Fowkes FGR, et al. Essential Features of a Surveillance System to Support the Prevention and Management of Heart Disease and Stroke. Circulation. 2007 Jan 2;115(1):127–55.
+    18. G-CHF Investigators, Joseph P, Roy A, Lonn E, Störk S, Floras J, et al. Global Variations in Heart Failure Etiology, Management, and Outcomes. JAMA. 2023 May 16;329(19):1650–61.
+    19. Organisation for Economic Co-operation and Development. DAC List of ODA Recipients | Effective for reporting on 2024 and 2025 flows [Internet]. OECD. 2023 [cited 2024 Oct 17]. Available from: https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/oda-eligibility-and-conditions/DAC-List-of-ODA-Recipients-for-reporting-2024-25-flows.pdf
 
     **Got some thoughts or suggestions? Don't hesitate to reach out to us. We'd love to hear from you!**
     """)
@@ -312,9 +335,9 @@ def show_home():
     st.markdown("---")
     
     st.markdown(
-        """
-        **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
-        """
+    """
+    **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
+    """
     )
     
     st.markdown("### Dashboard Features")
@@ -350,9 +373,10 @@ def show_home():
             Get in touch for more information about the project, our team, and how to reach us.
             """
         )
+    st.markdown("<br><br><br>", unsafe_allow_html=True) 
     
     st.sidebar.info("Navigate through the tabs to explore different analytics and features.")
-
+    
 
 def upload_pre_model():
     st.title("Input Your Medical Data")
@@ -552,9 +576,6 @@ def upload_pre_model():
         for idx, record in enumerate(st.session_state["input_history"]):
             st.markdown(format_record(record, idx), unsafe_allow_html=True)
     st.markdown("<br><br><br>", unsafe_allow_html=True) 
-
-import streamlit as st
-import pandas as pd
 
 def show_data_overview(df):
     st.title("Overview of Patients")
