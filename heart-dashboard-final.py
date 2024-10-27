@@ -596,7 +596,7 @@ def show_data_overview(df):
     """
 
     with col1:
-        st.markdown(card_style.format(bg_color="#2ca02c", title="Total Records", value=total_records,
+        st.markdown(card_style.format(bg_color="#808080", title="Total Records", value=total_records,
                                   description="This represents the total number of patient records."), unsafe_allow_html=True)
 
     with col2:
@@ -604,7 +604,7 @@ def show_data_overview(df):
                                     description="Number of patients who experienced a death event."), unsafe_allow_html=True)
 
     with col3:
-        st.markdown(card_style.format(bg_color="#808080", title="Survival Cases", value=negative_cases,
+        st.markdown(card_style.format(bg_color="#2ca02c", title="Survival Cases", value=negative_cases,
                                     description="Number of patients who did not experience a death event."), unsafe_allow_html=True)
 
     
