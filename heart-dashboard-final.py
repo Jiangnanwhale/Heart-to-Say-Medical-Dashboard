@@ -1046,16 +1046,16 @@ def show_model_performance(df):
         
     # Feature Importance Bar Plot
     with right_column:
-        st.subheader("Feature Importance from SHAP")
+        st.subheader("Factor Importance from SHAP")
         shap_importance_df = pd.DataFrame({
-            "Feature": sorted_feature_names,
+            "Factor": sorted_feature_names,
             "Importance": feature_importances[sorted_indices]
         })
 
         fig = px.bar(
             shap_importance_df,
             x="Importance",
-            y="Feature",
+            y="Factor",
             orientation="h",
             text="Importance",
         )
@@ -1065,7 +1065,7 @@ def show_model_performance(df):
                 showgrid=True 
             ),
             xaxis=dict(
-                title="Feature Importance",
+                title="Factor Importance",
                 showgrid=True,  
                 gridcolor="lightgray" 
             ),
@@ -1090,13 +1090,13 @@ def show_model_performance(df):
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #34495e; margin-bottom: 20px;">
             The SHAP analysis provides crucial insights into how each dataset feature influences the model's predictions regarding mortality risk.
         </p>
-        <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Key Important Features:</h3>
+        <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-bottom: 10px;">Key Important Factors:</h3>
         <ul style="font-family: 'Arial', sans-serif; color: #444; list-style-type: circle; padding-left: 20px;">
-            {"".join(f"<li style='margin-bottom: 5px;'><strong>{row['Feature']}</strong>: Importance Score = {row['Importance']:.4f}</li>" for _, row in top_contributions.iterrows())}
+            {"".join(f"<li style='margin-bottom: 5px;'><strong>{row['Factor']}</strong>: Importance Score = {row['Importance']:.4f}</li>" for _, row in top_contributions.iterrows())}
         </ul>
         <h3 style="color: #2980b9; font-family: 'Arial', sans-serif; font-size: 22px; margin-top: 20px; margin-bottom: 10px;">Insights:</h3>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555;">
-            The plots suggest that <span style="color: red;"><strong>{top_contributions.iloc[0]['Feature']}</strong></span> had the <strong>greatest impact on the model output</strong>, followed by <span style="color: red;"><strong>{top_contributions.iloc[1]['Feature']}</strong></span> and <span style="color: red;"><strong>{top_contributions.iloc[2]['Feature']}</strong></span>.
+            The plots suggest that <span style="color: red;"><strong>{top_contributions.iloc[0]['Factor']}</strong></span> had the <strong>greatest impact on the model output</strong>, followed by <span style="color: red;"><strong>{top_contributions.iloc[1]['Factor']}</strong></span> and <span style="color: red;"><strong>{top_contributions.iloc[2]['Factor']}</strong></span>.
         </p>
         <p style="font-family: 'Arial', sans-serif; font-size: 16px; color: #555; margin-top: 20px;">
             Understanding these contributions is vital for interpreting the model's behavior and making informed decisions based on the predictions.
