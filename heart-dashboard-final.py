@@ -297,7 +297,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Overview of Patients", "Data Analysis","Mortality Risk Prediction", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Patients Data Overview", "Data Analysis","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={ 'time': 'follow-up days',
@@ -309,7 +309,7 @@ def show_input_data():
                         "high_blood_pressure": "hypertension"
                         }, inplace=True)
                         
-    if option == "Overview of Patients":
+    if option == "Patients Data Overview":
         show_data_overview(df)
     elif option == "Contact Us":
         show_contact_us()
@@ -352,7 +352,7 @@ def show_home():
             - **🏠 Home**: 
             Provides an overview of the dashboard's functionality.
             
-            - **📊 Overview of Patients**: 
+            - **📊 Patients Data Overview**: 
             Explore heart failure patient's data, enabling healthcare professionals to view trends and prevalence based on:
                 - Age and gender
                 - Smoking status
@@ -578,7 +578,7 @@ def upload_pre_model():
     st.markdown("<br><br><br>", unsafe_allow_html=True) 
 
 def show_data_overview(df):
-    st.title("Overview of Patients")
+    st.title("Patients Data Overview")
     
     # Dataset basic info
     total_records = len(df)
@@ -611,7 +611,7 @@ def show_data_overview(df):
     st.markdown("")
     st.markdown("")
 
-    st.subheader("Overview of Patient Data")
+    st.subheader("Patients Data Overview")
     left_column, right_column = st.columns(2)
     
     col = list(df)
