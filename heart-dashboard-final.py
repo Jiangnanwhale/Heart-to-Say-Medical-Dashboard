@@ -660,8 +660,11 @@ def show_data_overview(df):
         selected_counts = df[selected_column].value_counts()
         selected_column_percentage = round((selected_counts.get(1, 0) / len(df)) * 100)  # dead
         opposite_percentage = round((selected_counts.get(0, 0) / len(df)) * 100) 
-
-        conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category. " 
+        
+        if selected_column == 'sex':
+            conclusion_text = f"Based on the dataset, {selected_column_percentage}% are Male, while {opposite_percentage}% are Female."
+        else:
+            conclusion_text = f"Based on the dataset, {selected_column_percentage}% are {selected_column}, while {opposite_percentage}% belong to the opposite category."
         st.write(conclusion_text)
 
         df_copy = df.copy()   
