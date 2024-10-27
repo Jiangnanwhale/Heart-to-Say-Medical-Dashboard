@@ -336,7 +336,7 @@ def show_home():
     
     st.markdown(
     """
-    **This dashboard supports physicians in predicting the risk of mortality due to heart failure.** 
+    **This dashboard supports general practitioners, cardiologists and cardiac nurses in predicting the risk of mortality due to heart failure.** 
     """
     )
     
