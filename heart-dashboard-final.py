@@ -353,7 +353,7 @@ def show_home():
             Provides an overview of the dashboard's functionality.
             
             - **📊 Patients Data Overview**: 
-            Explore heart failure patient's data, enabling healthcare professionals to view trends and prevalence based on:
+            Explore heart failure patient's data, enabling you to view trends and prevalence based on:
                 - Age and gender
                 - Smoking status
                 - Comorbidities
