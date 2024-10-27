@@ -297,7 +297,7 @@ def show_input_data():
 
     with st.sidebar:
         st.subheader(":guide_dog: Navigation")
-        option = st.radio("Select an option:", ["Home","Overview of Patients", "Risk Analysis","Mortality Risk Prediction", "Contact Us"])
+        option = st.radio("Select an option:", ["Home","Overview of Patients", "Data Analysis","Mortality Risk Prediction", "Contact Us"])
     
     df = pd.read_csv("Web medical dashboard/heart_failure_clinical_records_dataset.csv")
     df.rename(columns={ 'time': 'follow-up days',
